@@ -49,10 +49,11 @@
 }
 
 /* Override Prism token function color for WCAG compliance */
-:root .token.function {
-  color: #333333; /* Dark gray for light theme */
+/* Use !important to override inline styles from Prism theme */
+html body .token.function {
+  color: #333333 !important; 
 }
 
-[data-theme='dark'] .token.function {
-  color: #cccccc; /* Light gray for dark theme */
+html[data-theme='dark'] body .token.function {
+  color: #cccccc !important;
 }
