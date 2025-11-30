@@ -1,55 +1,61 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+<!--
+Sync Impact Report:
+Version change: None → v0.1.0
+Modified principles:
+- PROJECT_NAME: Physical AI & Humanoid Robotics Textbook
+- Principle 1: I. Embodied Intelligence Focus
+- Principle 2: II. ROS 2 as the Robotic Nervous System
+- Principle 3: III. Digital Twin for Simulation and Interaction
+- Principle 4: IV. NVIDIA Isaac for Advanced AI-Robot Brain
+- Principle 5: V. Vision-Language-Action (VLA) Integration
+- Principle 6: VI. Learning Outcomes Driven Content
+- Principle 7: VII. Practical Capstone Project
+- Principle 8: VIII. AI/Spec-Driven Book Creation with Spec-Kit Plus
+- Principle 9: IX. Embedded RAG Chatbot for Interactive Learning
+Added sections: None
+Removed sections: None
+Templates requiring updates:
+- .specify/templates/plan-template.md: ✅ updated
+- .specify/templates/spec-template.md: ✅ updated
+- .specify/templates/tasks-template.md: ✅ updated
+- .specify/templates/commands/*.md: ✅ updated
+Follow-up TODOs: None
+-->
+# Physical AI & Humanoid Robotics Textbook Constitution
 
 ## Core Principles
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+### I. Embodied Intelligence Focus
+AI systems must operate within physical constraints, bridging digital intelligence with robotic embodiments for real-world interaction. All components and content must demonstrate direct and practical application in humanoid robotics, evidenced by functional simulations, proof-of-concept code, or direct integration with specified hardware/software platforms (e.g., ROS 2, Gazebo, NVIDIA Isaac).
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+### II. ROS 2 as the Robotic Nervous System
+ROS 2 must be the foundational middleware for all robotic control and communication. This includes strict adherence to ROS 2 nodes, topics, services, and the seamless integration of Python agents via `rclpy`. URDF will be the standard for humanoid robot descriptions.
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+### III. Digital Twin for Simulation and Interaction
+Gazebo and Unity will be used for high-fidelity physics simulation, environment building, and human-robot interaction. Simulation accuracy, including gravity, collisions, and sensor data (LiDAR, Depth Cameras, and IMUs), is paramount.
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+### IV. NVIDIA Isaac for Advanced AI-Robot Brain
+NVIDIA Isaac Sim will be utilized for photorealistic simulation and synthetic data generation, and Isaac ROS for hardware-accelerated VSLAM and navigation. Nav2 will be the framework for bipedal humanoid path planning.
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+### V. Vision-Language-Action (VLA) Integration
+The convergence of LLMs and robotics is central. OpenAI Whisper will enable voice-to-action commands, and LLMs will be used for cognitive planning, translating natural language ("Clean the room") into sequences of ROS 2 actions for autonomous robot tasks.
 
-### [PRINCIPLE_6_NAME]
+### VI. Learning Outcomes Driven Content
+All textbook content, examples, and projects must directly align with and facilitate the six defined learning outcomes. This alignment will be explicitly mapped in content specifications (refer to Spec-Kit Plus workflow), and regular content audits will verify that each section contributes measurably to specific learning outcomes: understanding Physical AI principles, mastering ROS 2, simulating robots with Gazebo and Unity, developing with NVIDIA Isaac, designing humanoid robots for natural interactions, and integrating GPT models for conversational robotics.
 
+### VII. Practical Capstone Project
+The "Autonomous Humanoid" capstone project must be the ultimate demonstration of integrated learning, where a simulated robot receives a voice command, plans a path, navigates obstacles, identifies an object using computer vision, and manipulates it.
 
-[PRINCIPLE__DESCRIPTION]
+### VIII. AI/Spec-Driven Book Creation with Spec-Kit Plus
+The book development process will strictly adhere to Specification-Driven Development (SDD) principles using Spec-Kit Plus. This includes generating precise specifications for content, detailed implementation plans, and testable tasks for all chapters and modules.
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+### IX. Embedded RAG Chatbot for Interactive Learning
+An integrated RAG chatbot, built with OpenAI Agents/ChatKit SDKs, FastAPI, Neon Serverless Postgres, and Qdrant Cloud Free Tier, must be embedded within the published book. It must be capable of answering questions about book content, including user-selected text, to enhance interactive learning.
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
-
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
-
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+### X. Content Quality and Academic Integrity
+All textbook content must adhere to academic standards for clarity, accuracy, and originality. Factual claims must be verifiable and properly cited using a consistent, project-defined citation style (e.g., IEEE). Plagiarism checks will be mandatory for all generated and human-contributed content to ensure intellectual honesty.
 
 ## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
+This Constitution supersedes all other project practices and documentation. Amendments require a formal proposal, review, and explicit approval by project leadership, followed by documentation of the rationale and a plan for migrating any affected components. All pull requests and code reviews must explicitly verify compliance with these principles. Complexity must always be justified against these core tenets.
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
-
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+**Version**: v0.1.0 | **Ratified**: 2025-11-30 | **Last Amended**: 2025-11-30
