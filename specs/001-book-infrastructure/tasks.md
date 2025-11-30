@@ -128,21 +128,21 @@ Project structure per plan.md:
 
 ### Implementation for User Story 2
 
-- [ ] T057 [P] [US2] Copy GitHub Actions workflow from contracts/ to .github/workflows/deploy.yml and update repository values
-- [ ] T058 [P] [US2] Configure GitHub Pages in repository settings (source: gh-pages branch, enforce HTTPS)
-- [ ] T059 [P] [US2] Configure branch protection rules for main branch (require PR, passing checks)
-- [ ] T060 [P] [US2] Create GitHub issue templates in .github/ISSUE_TEMPLATE/ (bug, feature, documentation)
-- [ ] T061 [P] [US2] Create GitHub PR template in .github/pull_request_template.md
-- [ ] T062 [P] [US2] Add build validation step to workflow in .github/workflows/deploy.yml
-- [ ] T063 [P] [US2] Add asset validation step to workflow (scripts/validate-assets.js)
-- [ ] T064 [P] [US2] Add markdown linting step to workflow (npm run lint:md)
-- [ ] T065 [P] [US2] Add accessibility testing step to workflow (npm run test:a11y)
-- [ ] T066 [US2] Configure workflow concurrency settings in .github/workflows/deploy.yml to prevent duplicate deployments
-- [ ] T067 [US2] Test deployment: push valid commit to main → verify site updates within 5 minutes
-- [ ] T068 [US2] Test failure scenario: push broken markdown → verify previous version stays live
-- [ ] T069 [P] [US2] Add workflow status badge to repository README.md
-- [ ] T070 [US2] Document deployment trigger and monitoring process in quickstart.md
-- [ ] T071 [US2] Document deployment troubleshooting steps in quickstart.md
+- [x] T057 [P] [US2] Copy GitHub Actions workflow from contracts/ to .github/workflows/deploy.yml and update repository values
+- [x] T058 [P] [US2] Configure GitHub Pages in repository settings (source: gh-pages branch, enforce HTTPS)
+- [x] T059 [P] [US2] Configure branch protection rules for main branch (require PR, passing checks)
+- [x] T060 [P] [US2] Create GitHub issue templates in .github/ISSUE_TEMPLATE/ (bug, feature, documentation)
+- [x] T061 [P] [US2] Create GitHub PR template in .github/pull_request_template.md
+- [x] T062 [P] [US2] Add build validation step to workflow in .github/workflows/deploy.yml
+- [x] T063 [P] [US2] Add asset validation step to workflow (scripts/validate-assets.js)
+- [x] T064 [P] [US2] Add markdown linting step to workflow (npm run lint:md)
+- [x] T065 [P] [US2] Add accessibility testing step to workflow (npm run test:a11y)
+- [x] T066 [US2] Configure workflow concurrency settings in .github/workflows/deploy.yml to prevent duplicate deployments
+- [x] T067 [US2] Test deployment: push valid commit to main → verify site updates within 5 minutes
+- [x] T068 [US2] Test failure scenario: push broken markdown → verify previous version stays live
+- [x] T069 [P] [US2] Add workflow status badge to repository README.md
+- [x] T070 [US2] Document deployment trigger and monitoring process in quickstart.md
+- [x] T071 [US2] Document deployment troubleshooting steps in quickstart.md
 
 **Checkpoint**: At this point, pushing to main triggers automated deployment with full validation
 
@@ -163,19 +163,19 @@ Project structure per plan.md:
 
 ### Implementation for User Story 3
 
-- [ ] T072 [P] [US3] Configure sidebar categories with collapsed: false for Parts in book/sidebars.js
-- [ ] T073 [P] [US3] Add category icons (emojis) to Part 1-3 _category_.json files
-- [ ] T074 [P] [US3] Add category icons (emojis) to Part 4-6 _category_.json files
-- [ ] T075 [P] [US3] Configure table of contents depth in book/docusaurus.config.ts
-- [ ] T076 [P] [US3] Configure mobile menu breakpoint and hamburger icon in book/docusaurus.config.ts
-- [ ] T077 [P] [US3] Configure "Previous/Next" navigation buttons in book/docusaurus.config.ts
-- [ ] T078 [P] [US3] Add internal cross-reference examples in Part 1-2 sample content
-- [ ] T079 [P] [US3] Add internal cross-reference examples in Part 3-4 sample content
-- [ ] T080 [P] [US3] Configure "Edit this page" GitHub links in book/docusaurus.config.ts docs preset
-- [ ] T081 [US3] Test navigation: create 4-level hierarchy (part → chapter → section → subsection)
-- [ ] T082 [US3] Test mobile navigation on viewports 320px-768px (verify hamburger menu, touch interactions)
-- [ ] T083 [US3] Test browser navigation (back button, forward button, history across 5+ pages)
-- [ ] T084 [US3] Verify sidebar state persistence (collapsed/expanded state maintained during navigation)
+- [x] T072 [P] [US3] Configure sidebar categories with collapsed: false for Parts in book/sidebars.js
+- [x] T073 [P] [US3] Add category icons (emojis) to Part 1-3 _category_.json files
+- [x] T074 [P] [US3] Add category icons (emojis) to Part 4-6 _category_.json files
+- [x] T075 [P] [US3] Configure table of contents depth in book/docusaurus.config.ts
+- [x] T076 [P] [US3] Configure mobile menu breakpoint and hamburger icon in book/docusaurus.config.ts
+- [x] T077 [P] [US3] Configure "Previous/Next" navigation buttons in book/docusaurus.config.ts
+- [x] T078 [P] [US3] Add internal cross-reference examples in Part 1-2 sample content
+- [x] T079 [P] [US3] Add internal cross-reference examples in Part 3-4 sample content
+- [x] T080 [P] [US3] Configure "Edit this page" GitHub links in book/docusaurus.config.ts docs preset
+- [x] T081 [US3] Test navigation: create 4-level hierarchy (part → chapter → section → subsection)
+- [x] T082 [US3] Test mobile navigation on viewports 320px-768px (verify hamburger menu, touch interactions)
+- [x] T083 [US3] Test browser navigation (back button, forward button, history across 5+ pages)
+- [x] T084 [US3] Verify sidebar state persistence (collapsed/expanded state maintained during navigation)
 
 **Checkpoint**: All user stories should now be independently functional - full book infrastructure ready
 
@@ -192,17 +192,17 @@ Project structure per plan.md:
 
 **Purpose**: Improvements that affect multiple user stories and final quality checks
 
-- [ ] T085 [P] Configure Docusaurus built-in search in book/docusaurus.config.ts
+- [x] T085 [P] Configure Docusaurus built-in search in book/docusaurus.config.ts
 - [ ] T086 [P] Add SEO meta tags in book/docusaurus.config.ts (description, keywords, og:tags)
-- [ ] T087 [P] Configure robots.txt in book/static/robots.txt
+- [x] T087 [P] Configure robots.txt in book/static/robots.txt
 - [ ] T088 [P] Verify sitemap.xml auto-generation in build output
-- [ ] T089 [P] Create README.md with badges, quickstart, and project overview
-- [ ] T090 [P] Add MIT LICENSE file (or appropriate educational license)
-- [ ] T091 [P] Add Code of Conduct (Contributor Covenant) in CODE_OF_CONDUCT.md
-- [ ] T092 [P] Create CHANGELOG.md for infrastructure version tracking
+- [x] T089 [P] Create README.md with badges, quickstart, and project overview
+- [x] T090 [P] Add MIT LICENSE file (or appropriate educational license)
+- [x] T091 [P] Add Code of Conduct (Contributor Covenant) in CODE_OF_CONDUCT.md
+- [x] T092 [P] Create CHANGELOG.md for infrastructure version tracking
 - [ ] T093 [P] Verify all 6 Parts have _category_.json with learning outcome mappings
-- [ ] T094 Create deployment documentation in book/docs/meta/deployment.md
-- [ ] T095 Add troubleshooting guide section to book/docs/meta/deployment.md
+- [x] T094 Create deployment documentation in book/docs/meta/deployment.md
+- [x] T095 Add troubleshooting guide section to book/docs/meta/deployment.md
 - [ ] T096 Test search performance with 20+ pages (verify <1s keyword query response)
 - [ ] T097 Test page load times on standard broadband (verify <2s for 5 representative pages)
 - [ ] T098 Run Lighthouse accessibility audit (verify score ≥90 on 5 pages)

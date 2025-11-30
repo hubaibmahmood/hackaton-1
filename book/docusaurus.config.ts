@@ -65,6 +65,15 @@ const config: Config = {
       disableSwitch: false,
       respectPrefersColorScheme: true,
     },
+    docs: {
+      sidebar: {
+        hideable: true, // Allow sidebar to be hidden
+      },
+      tableOfContents: {
+        minHeadingLevel: 2,
+        maxHeadingLevel: 3,
+      },
+    },
     navbar: {
       title: 'Physical AI & Humanoid Robotics',
       logo: {
