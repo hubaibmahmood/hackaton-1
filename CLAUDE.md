@@ -208,3 +208,10 @@ Wait for consent; never auto-create ADRs. Group related decisions (stacks, authe
 
 ## Code Standards
 See `.specify/memory/constitution.md` for code quality, testing, performance, security, and architecture principles.
+
+## Active Technologies
+- Node.js 18.x+ (LTS), TypeScript 5.x (for Docusaurus configuration and plugins) + Docusaurus 3.x, React 18.x, MDX 3.x, Prism.js (syntax highlighting) (001-book-infrastructure)
+- Git repository for content and static assets (2MB/file, 100MB total), GitHub Pages for hosting (001-book-infrastructure)
+
+## Recent Changes
+- 001-book-infrastructure: Added Node.js 18.x+ (LTS), TypeScript 5.x (for Docusaurus configuration and plugins) + Docusaurus 3.x, React 18.x, MDX 3.x, Prism.js (syntax highlighting)

@@ -1,0 +1,15 @@
+# Dependencies
+node_modules/
+book/node_modules/
+
+# Production
+book/build/
+
+# Generated files
+book/.docusaurus/
+.cache-loader
+
+# Misc
+.DS_Store
+*.log
+.env

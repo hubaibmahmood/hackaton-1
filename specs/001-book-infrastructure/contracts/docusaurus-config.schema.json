@@ -1,0 +1,250 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://book-generation/schemas/docusaurus-config.json",
+  "title": "Docusaurus Configuration",
+  "description": "Schema for docusaurus.config.js/ts for Physical AI & Humanoid Robotics textbook",
+  "type": "object",
+  "required": [
+    "title",
+    "tagline",
+    "url",
+    "baseUrl",
+    "organizationName",
+    "projectName",
+    "onBrokenLinks",
+    "onBrokenMarkdownLinks",
+    "themeConfig",
+    "presets"
+  ],
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "Site title",
+      "const": "Physical AI & Humanoid Robotics"
+    },
+    "tagline": {
+      "type": "string",
+      "description": "Site tagline/subtitle"
+    },
+    "url": {
+      "type": "string",
+      "format": "uri",
+      "description": "GitHub Pages URL"
+    },
+    "baseUrl": {
+      "type": "string",
+      "description": "Base URL path",
+      "pattern": "^/.*/$"
+    },
+    "organizationName": {
+      "type": "string",
+      "description": "GitHub organization or username"
+    },
+    "projectName": {
+      "type": "string",
+      "description": "GitHub repository name"
+    },
+    "onBrokenLinks": {
+      "type": "string",
+      "enum": ["throw", "warn", "ignore"],
+      "description": "Behavior on broken links (must be 'throw' for quality)"
+    },
+    "onBrokenMarkdownLinks": {
+      "type": "string",
+      "enum": ["throw", "warn", "ignore"],
+      "description": "Behavior on broken markdown links"
+    },
+    "favicon": {
+      "type": "string",
+      "description": "Path to favicon"
+    },
+    "themeConfig": {
+      "type": "object",
+      "required": ["navbar", "footer", "prism", "colorMode"],
+      "properties": {
+        "navbar": {
+          "type": "object",
+          "required": ["title", "logo", "items"],
+          "properties": {
+            "title": {
+              "type": "string"
+            },
+            "logo": {
+              "type": "object",
+              "properties": {
+                "alt": {
+                  "type": "string",
+                  "description": "Logo alt text (accessibility)"
+                },
+                "src": {
+                  "type": "string",
+                  "description": "Path to logo image"
+                }
+              },
+              "required": ["alt", "src"]
+            },
+            "items": {
+              "type": "array",
+              "description": "Navbar items",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "enum": ["doc", "docSidebar", "page", "dropdown", "search"]
+                  },
+                  "label": {
+                    "type": "string"
+                  },
+                  "position": {
+                    "type": "string",
+                    "enum": ["left", "right"]
+                  },
+                  "to": {
+                    "type": "string"
+                  },
+                  "href": {
+                    "type": "string",
+                    "format": "uri"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "footer": {
+          "type": "object",
+          "properties": {
+            "style": {
+              "type": "string",
+              "enum": ["dark", "light"]
+            },
+            "links": {
+              "type": "array"
+            },
+            "copyright": {
+              "type": "string"
+            }
+          }
+        },
+        "prism": {
+          "type": "object",
+          "required": ["theme", "additionalLanguages"],
+          "properties": {
+            "theme": {
+              "type": "object",
+              "description": "Prism theme (light mode)"
+            },
+            "darkTheme": {
+              "type": "object",
+              "description": "Prism theme (dark mode)"
+            },
+            "additionalLanguages": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Additional syntax highlighting languages",
+              "contains": {
+                "enum": ["python", "javascript", "yaml", "bash"]
+              }
+            }
+          }
+        },
+        "colorMode": {
+          "type": "object",
+          "properties": {
+            "defaultMode": {
+              "type": "string",
+              "enum": ["light", "dark"]
+            },
+            "disableSwitch": {
+              "type": "boolean"
+            },
+            "respectPrefersColorScheme": {
+              "type": "boolean",
+              "description": "Respect user's OS color scheme preference"
+            }
+          }
+        },
+        "algolia": {
+          "type": "object",
+          "description": "Algolia DocSearch config (optional, for future)",
+          "properties": {
+            "appId": {
+              "type": "string"
+            },
+            "apiKey": {
+              "type": "string"
+            },
+            "indexName": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "presets": {
+      "type": "array",
+      "description": "Docusaurus presets",
+      "minItems": 1,
+      "items": {
+        "type": "array",
+        "items": [
+          {
+            "type": "string",
+            "const": "@docusaurus/preset-classic"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "docs": {
+                "type": "object",
+                "properties": {
+                  "sidebarPath": {
+                    "type": "string",
+                    "description": "Path to sidebars.js"
+                  },
+                  "editUrl": {
+                    "type": "string",
+                    "format": "uri",
+                    "description": "GitHub edit URL"
+                  },
+                  "showLastUpdateTime": {
+                    "type": "boolean"
+                  },
+                  "showLastUpdateAuthor": {
+                    "type": "boolean"
+                  }
+                }
+              },
+              "theme": {
+                "type": "object",
+                "properties": {
+                  "customCss": {
+                    "type": "string",
+                    "description": "Path to custom CSS"
+                  }
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    "plugins": {
+      "type": "array",
+      "description": "Additional Docusaurus plugins",
+      "items": {
+        "oneOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "array"
+          }
+        ]
+      }
+    }
+  }
+}

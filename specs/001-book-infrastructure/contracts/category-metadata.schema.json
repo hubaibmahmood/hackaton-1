@@ -1,0 +1,116 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://book-generation/schemas/category-metadata.json",
+  "title": "Docusaurus Category Metadata",
+  "description": "Schema for _category_.json files (Parts and Chapters)",
+  "type": "object",
+  "required": ["label", "position"],
+  "properties": {
+    "label": {
+      "type": "string",
+      "description": "Display name for the category in navigation",
+      "minLength": 1
+    },
+    "position": {
+      "type": "integer",
+      "description": "Sort order within parent (1-based)",
+      "minimum": 1
+    },
+    "link": {
+      "type": "object",
+      "description": "Category link configuration",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["generated-index", "doc"],
+          "description": "Type of link (auto-generated index or specific doc)"
+        },
+        "title": {
+          "type": "string",
+          "description": "Override title for generated index"
+        },
+        "description": {
+          "type": "string",
+          "description": "Description for generated index page"
+        },
+        "slug": {
+          "type": "string",
+          "description": "Custom URL slug"
+        },
+        "id": {
+          "type": "string",
+          "description": "Doc ID (when type is 'doc')"
+        }
+      },
+      "if": {
+        "properties": {
+          "type": {
+            "const": "doc"
+          }
+        }
+      },
+      "then": {
+        "required": ["id"]
+      }
+    },
+    "collapsible": {
+      "type": "boolean",
+      "description": "Whether category can be collapsed",
+      "default": true
+    },
+    "collapsed": {
+      "type": "boolean",
+      "description": "Initial collapsed state",
+      "default": true
+    },
+    "className": {
+      "type": "string",
+      "description": "Custom CSS class for styling"
+    },
+    "customProps": {
+      "type": "object",
+      "description": "Custom metadata (e.g., learning outcome mapping)",
+      "properties": {
+        "learningOutcome": {
+          "type": "string",
+          "description": "Maps to constitution principle"
+        },
+        "icon": {
+          "type": "string",
+          "description": "Emoji or icon identifier"
+        },
+        "estimatedTime": {
+          "type": "string",
+          "description": "Estimated reading/completion time"
+        }
+      }
+    }
+  },
+  "examples": [
+    {
+      "label": "Part 1: Understanding Physical AI Principles",
+      "position": 1,
+      "link": {
+        "type": "generated-index",
+        "description": "Learn the fundamental principles of Physical AI and embodied intelligence.",
+        "slug": "part-01-physical-ai"
+      },
+      "collapsed": false,
+      "customProps": {
+        "learningOutcome": "I. Embodied Intelligence Focus",
+        "icon": "🤖"
+      }
+    },
+    {
+      "label": "Chapter 1: Introduction to ROS 2",
+      "position": 1,
+      "link": {
+        "type": "doc",
+        "id": "part-02-ros2/chapter-01-introduction/index"
+      },
+      "customProps": {
+        "estimatedTime": "45 minutes"
+      }
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "label": "Part 2: Mastering ROS 2 for Robotic Systems",
+  "position": 2,
+  "link": {
+    "type": "generated-index",
+    "description": "Explore ROS 2 as the foundational middleware for robotic control and communication."
+  }
+}
