@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - main  # Only deploy from main branch
+  pull_request:
+    branches:
+      - main  # Build and test on PRs
   workflow_dispatch:  # Allow manual trigger
 
 # Prevent concurrent deployments
@@ -84,6 +87,7 @@ jobs:
   # Deploy job
   deploy:
     name: Deploy to GitHub Pages
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
     needs: build
     runs-on: ubuntu-latest
 
