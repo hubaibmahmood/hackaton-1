@@ -1,6 +1,7 @@
 {
-  "label": "Part 6: Integrating GPT Models for Conversational Robotics",
+  "label": "💬 Part 6: Conversational Robotics",
   "position": 6,
+  "collapsed": false,
   "link": {
     "type": "generated-index",
     "description": "Discover how to integrate large language models for cognitive planning and conversational robotics."
