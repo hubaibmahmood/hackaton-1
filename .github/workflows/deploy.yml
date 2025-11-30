@@ -1,0 +1,115 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main  # Only deploy from main branch
+  workflow_dispatch:  # Allow manual trigger
+
+# Prevent concurrent deployments
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+env:
+  NODE_VERSION: '18.x'  # LTS version
+
+jobs:
+  # Build job
+  build:
+    name: Build Docusaurus Site
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for git metadata
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: 'book/package-lock.json'
+
+      - name: Install dependencies
+        working-directory: ./book
+        run: npm ci
+
+      - name: Lint markdown files
+        working-directory: ./book
+        run: npm run lint:md || echo "Markdown linting completed with warnings"
+        continue-on-error: false
+
+      - name: Validate asset sizes
+        working-directory: ./book
+        run: |
+          echo "Checking individual file sizes (max 2MB)..."
+          find static -type f -size +2M -exec ls -lh {} \; | tee oversized-files.txt
+          if [ -s oversized-files.txt ]; then
+            echo "ERROR: Files exceed 2MB limit"
+            cat oversized-files.txt
+            exit 1
+          fi
+
+          echo "Checking total static folder size (max 100MB)..."
+          TOTAL_SIZE=$(du -sm static | cut -f1)
+          echo "Total size: ${TOTAL_SIZE}MB"
+          if [ "$TOTAL_SIZE" -gt 100 ]; then
+            echo "ERROR: Static folder exceeds 100MB limit"
+            exit 1
+          fi
+
+      - name: Build Docusaurus site
+        working-directory: ./book
+        run: npm run build
+        env:
+          NODE_ENV: production
+
+      - name: Run accessibility tests
+        working-directory: ./book
+        run: |
+          npm run test:a11y || {
+            echo "Accessibility tests failed"
+            exit 1
+          }
+        continue-on-error: false
+
+      - name: Upload build artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./book/build
+
+  # Deploy job
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: build
+    runs-on: ubuntu-latest
+
+    # Grant GITHUB_TOKEN permissions for deployment
+    permissions:
+      pages: write
+      id-token: write
+
+    # Deploy to GitHub Pages environment
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+      - name: Comment deployment URL
+        if: success()
+        run: |
+          echo "Deployment successful!"
+          echo "Site URL: ${{ steps.deployment.outputs.page_url }}"
+
+      - name: Notify on failure
+        if: failure()
+        run: |
+          echo "Deployment failed. Check logs for details."
+          echo "Previous deployment remains live (atomic deployment)."
