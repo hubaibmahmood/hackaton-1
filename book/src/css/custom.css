@@ -41,3 +41,18 @@
   --ifm-heading-color: #e3e4e8;
   --ifm-font-color-base: #e3e4e8;
 }
+
+/* Explicitly target homepage hero title for high contrast */
+.hero.hero--primary .hero__title {
+  color: #ffffff; /* Ensure white text */
+  background-color: var(--ifm-color-primary-darkest); /* Use a very dark primary variant */
+}
+
+/* Override Prism token function color for WCAG compliance */
+:root .token.function {
+  color: #333333; /* Dark gray for light theme */
+}
+
+[data-theme='dark'] .token.function {
+  color: #cccccc; /* Light gray for dark theme */
+}
