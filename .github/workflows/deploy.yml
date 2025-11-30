@@ -73,6 +73,10 @@ jobs:
       - name: Run accessibility tests
         working-directory: ./book
         run: |
+          # Start server in background to serve the build directory
+          npm run serve -- --port 3000 --no-open &
+          echo "Waiting for server to start..."
+          sleep 15
           npm run test:a11y || {
             echo "Accessibility tests failed"
             exit 1
