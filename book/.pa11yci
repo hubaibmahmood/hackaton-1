@@ -7,7 +7,7 @@
     }
   },
   "urls": [
-    "http://localhost:3000/",
-    "http://localhost:3000/docs/intro"
+    "http://localhost:3000/hackaton-1/",
+    "http://localhost:3000/hackaton-1/docs/intro"
   ]
 }
