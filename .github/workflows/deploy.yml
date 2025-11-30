@@ -15,7 +15,7 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  NODE_VERSION: '18.x'  # LTS version
+  NODE_VERSION: '20.x'  # LTS version
 
 jobs:
   # Build job
