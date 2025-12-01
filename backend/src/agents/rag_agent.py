@@ -1,11 +1,13 @@
 """RAG Agent using OpenAI Agents SDK."""
+
 import logging
-from typing import Optional, AsyncGenerator
+import os
+from typing import AsyncGenerator, Optional
 
-from agents import Agent, Runner, RunConfig, SQLiteSession
-
-from src.config import settings
+from agents import Agent, RunConfig, Runner, SQLiteSession
+from openai.types.responses import ResponseTextDeltaEvent
 from src.agents.tools import search_book_content
+from src.config import settings
 
 logger = logging.getLogger(__name__)
 
@@ -15,6 +17,10 @@ class RAGAgent:
 
     def __init__(self) -> None:
         """Initialize the RAG agent with OpenAI Agents SDK."""
+
+        # Ensure OpenAI API key is set in environment for the SDK
+        if not os.environ.get("OPENAI_API_KEY") and settings.openai_api_key:
+            os.environ["OPENAI_API_KEY"] = settings.openai_api_key
 
         # Agent instructions
         self.instructions = """You are a helpful assistant for the Physical AI textbook.
@@ -88,9 +94,9 @@ Conversation style:
                 starting_agent=self.agent,
                 input=user_message,
                 session=session,
-                config=RunConfig(
+                max_turns=10,
+                run_config=RunConfig(
                     model=settings.chat_model,
-                    max_turns=10,
                 ),
             )
 
@@ -99,9 +105,9 @@ Conversation style:
 
             # Extract citations from tool results if available
             citations = []
-            if hasattr(result, 'items'):
+            if hasattr(result, "items"):
                 for item in result.items:
-                    if hasattr(item, 'type') and item.type == 'tool_call':
+                    if hasattr(item, "type") and item.type == "tool_call":
                         # Citations are embedded in the agent's response
                         # We'll parse them from the final output
                         pass
@@ -143,13 +149,13 @@ Conversation style:
                     pass
 
             # Run agent with streaming
-            result = await Runner.run_streamed(
+            result = Runner.run_streamed(
                 starting_agent=self.agent,
                 input=user_message,
                 session=session,
-                config=RunConfig(
+                max_turns=10,
+                run_config=RunConfig(
                     model=settings.chat_model,
-                    max_turns=10,
                 ),
             )
 
@@ -160,8 +166,16 @@ Conversation style:
             async for event in result.stream_events():
                 # Token-by-token text deltas
                 if event.type == "raw_response_event":
-                    # Check if it's a text delta
-                    if hasattr(event, 'delta') and event.delta:
+                    # Strictly check for text delta event to avoid leaking tool args
+                    if hasattr(event, "data") and isinstance(event.data, ResponseTextDeltaEvent):
+                        if event.data.delta:
+                            accumulated_content += event.data.delta
+                            yield {
+                                "type": "content",
+                                "content": event.data.delta,
+                            }
+                    # Backward compatibility if needed (though stricter is better)
+                    elif hasattr(event, "delta") and event.delta and not hasattr(event, "data"):
                         accumulated_content += event.delta
                         yield {
                             "type": "content",
@@ -169,10 +183,10 @@ Conversation style:
                         }
 
                 # Tool call events
-                elif event.type == "run_item_event":
-                    if hasattr(event.item, 'type'):
+                elif event.type == "run_item_stream_event":
+                    if hasattr(event.item, "type"):
                         if event.item.type == "tool_call_item":
-                            tool_name = getattr(event.item, 'name', 'unknown')
+                            tool_name = getattr(event.item, "name", "unknown")
                             logger.info(f"Tool called: {tool_name}")
                             yield {
                                 "type": "tool_call",
@@ -183,8 +197,8 @@ Conversation style:
                             pass
 
                 # Agent handoff events (for multi-agent scenarios)
-                elif event.type == "agent_updated":
-                    logger.info(f"Agent changed to: {event.agent.name}")
+                # elif event.type == "agent_updated_stream_event":
+                #     logger.info(f"Agent changed to: {event.new_agent.name}")
 
             # Yield final message
             yield {

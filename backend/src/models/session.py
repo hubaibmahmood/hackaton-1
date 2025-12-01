@@ -1,5 +1,5 @@
 """Session models for conversation management."""
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Optional
 from uuid import UUID, uuid4
 
@@ -13,7 +13,7 @@ class ConversationMessage(BaseModel):
 
     role: str = Field(..., description="Message role: 'user' or 'assistant'")
     content: str = Field(..., description="Message content")
-    timestamp: datetime = Field(default_factory=datetime.utcnow, description="Message timestamp")
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc), description="Message timestamp")
     citations: Optional[list[dict]] = Field(None, description="Citations (for assistant messages)")
 
 
@@ -29,17 +29,17 @@ class UserSession(BaseModel):
     # Rate limiting
     rate_limit_counter: int = Field(default=0, description="Number of queries in current window")
     rate_limit_window_start: datetime = Field(
-        default_factory=datetime.utcnow,
+        default_factory=lambda: datetime.now(timezone.utc),
         description="Start of rate limit window"
     )
 
     # Session lifecycle
     expires_at: datetime = Field(
-        default_factory=lambda: datetime.utcnow() + timedelta(hours=settings.session_expiry_hours),
+        default_factory=lambda: datetime.now(timezone.utc) + timedelta(hours=settings.session_expiry_hours),
         description="Session expiration timestamp"
     )
-    created_at: datetime = Field(default_factory=datetime.utcnow, description="Session creation time")
-    last_activity: datetime = Field(default_factory=datetime.utcnow, description="Last activity timestamp")
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc), description="Session creation time")
+    last_activity: datetime = Field(default_factory=lambda: datetime.now(timezone.utc), description="Last activity timestamp")
 
     # Optional metadata (no PII)
     current_page_url: Optional[str] = Field(None, description="Current page URL")
@@ -51,7 +51,7 @@ class UserSession(BaseModel):
         Returns:
             bool: True if session is expired
         """
-        return datetime.utcnow() > self.expires_at
+        return datetime.now(timezone.utc) > self.expires_at
 
     def add_message(self, role: str, content: str, citations: Optional[list[dict]] = None) -> None:
         """Add message to conversation history.
@@ -67,7 +67,7 @@ class UserSession(BaseModel):
             citations=citations,
         )
         self.conversation_history.append(message)
-        self.last_activity = datetime.utcnow()
+        self.last_activity = datetime.now(timezone.utc)
 
     def get_conversation_context(self, max_messages: int = 10) -> list[dict]:
         """Get recent conversation history for context.

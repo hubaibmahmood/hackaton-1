@@ -1,4 +1,5 @@
 """Session service for conversation history and rate limiting."""
+import json
 import logging
 from datetime import datetime, timedelta, timezone
 from typing import Optional
@@ -59,7 +60,7 @@ class SessionService:
                 """,
                 (
                     str(session.session_id),
-                    [],  # Empty JSONB array
+                    json.dumps([]),  # Empty JSONB array
                     session.rate_limit_counter,
                     session.rate_limit_window_start,
                     session.expires_at,
@@ -163,8 +164,6 @@ class SessionService:
             content: Message content
             citations: Optional citations for assistant messages
         """
-        import json
-
         message = ConversationMessage(
             role=role,
             content=content,
@@ -233,7 +232,7 @@ class SessionService:
         window_start = now - window_duration
 
         # Reset counter if outside window
-        if session.rate_limit_window_start.replace(tzinfo=timezone.utc) < window_start:
+        if session.rate_limit_window_start < window_start:
             # Reset window
             async with postgres_db.get_connection() as conn:
                 await conn.execute(

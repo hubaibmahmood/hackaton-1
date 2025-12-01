@@ -12,6 +12,7 @@ export interface FloatingButtonProps {
 export const FloatingButton: React.FC<FloatingButtonProps> = ({ onClick, isOpen }) => {
   return (
     <button
+      type="button"
       className={`chatbot-floating-button ${isOpen ? 'chatbot-floating-button--open' : ''}`}
       onClick={onClick}
       aria-label={isOpen ? 'Close chatbot' : 'Open chatbot'}
