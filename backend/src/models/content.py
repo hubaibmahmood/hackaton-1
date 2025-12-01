@@ -43,6 +43,10 @@ class ChunkMetadata(BaseModel):
     code_languages: list[str] = Field(default_factory=list, description="Programming languages in code")
     contains_table: bool = Field(default=False, description="Whether chunk contains tables")
 
+    # Contextual navigation
+    prerequisite_chapters: list[str] = Field(default_factory=list, description="List of prerequisite chapters")
+    next_topics: list[str] = Field(default_factory=list, description="List of upcoming topics/chapters")
+
     # Citation info
     citation_text: str = Field(..., description="Formatted citation text")
     citation_url: str = Field(..., description="Full URL with anchor")

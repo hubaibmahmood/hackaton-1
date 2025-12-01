@@ -165,19 +165,19 @@
 
 #### Backend - Page Context Awareness
 
-- [ ] T061 [US3] Extend Query model in backend/src/models/query.py (add optional current_page_url field, add page_metadata with part/chapter/section info)
-- [ ] T062 [US3] Enhance chunk metadata in backend/src/indexing/chunker.py (add prerequisite_chapters list based on book structure from _category_.json, add next_topics list from subsequent chapters, include in chunk payload)
-- [ ] T063 [US3] Update RAG agent instructions in backend/src/agents/rag_agent.py (provide navigation guidance: when asked about prerequisites, reference chunk metadata for prerequisite_chapters; when asked "what's next", suggest next_topics)
-- [ ] T064 [US3] Modify /api/chat endpoint in backend/src/api/chat.py (accept optional current_page_url parameter in ChatRequest, parse URL to extract part/chapter/section, pass to agent as page context)
+- [X] T061 [US3] Extend Query model in backend/src/models/query.py (add optional current_page_url field, add page_metadata with part/chapter/section info)
+- [X] T062 [US3] Enhance chunk metadata in backend/src/indexing/chunker.py (add prerequisite_chapters list based on book structure from _category_.json, add next_topics list from subsequent chapters, include in chunk payload)
+- [X] T063 [US3] Update RAG agent instructions in backend/src/agents/rag_agent.py (provide navigation guidance: when asked about prerequisites, reference chunk metadata for prerequisite_chapters; when asked "what's next", suggest next_topics)
+- [X] T064 [US3] Modify /api/chat endpoint in backend/src/api/chat.py (accept optional current_page_url parameter in ChatRequest, parse URL to extract part/chapter/section, pass to agent as page context)
 
 #### Frontend - Page Context Injection
 
-- [ ] T065 [US3] Add page context detection in book/src/services/chatService.ts (read current URL from window.location.pathname, parse to extract current part/chapter, include in chat requests)
-- [ ] T066 [US3] Update ChatProvider in book/src/components/ChatBot/ChatProvider.tsx (inject current_page_url automatically into all chat requests, display current page context in ChatBot header)
+- [X] T065 [US3] Add page context detection in book/src/services/chatService.ts (read current URL from window.location.pathname, parse to extract current part/chapter, include in chat requests)
+- [X] T066 [US3] Update ChatProvider in book/src/components/ChatBot/ChatProvider.tsx (inject current_page_url automatically into all chat requests, display current page context in ChatBot header)
 
 #### Testing for User Story 3
 
-- [ ] T067 [US3] Integration test for contextual queries in backend/tests/integration/test_api_endpoints.py (send request with current_page_url for Chapter 3, ask "What are prerequisites?", verify response recommends Chapters 1-2)
+- [X] T067 [US3] Integration test for contextual queries in backend/tests/integration/test_api_endpoints.py (send request with current_page_url for Chapter 3, ask "What are prerequisites?", verify response recommends Chapters 1-2)
 
 **Checkpoint**: All three user stories (general, selection, contextual) should work independently and together
 
@@ -193,18 +193,18 @@
 
 #### Backend - Location-Based Search
 
-- [ ] T068 [US4] Add query classification in backend/src/agents/rag_agent.py (detect search/discovery intent from patterns: "where is", "find", "show me all", vs Q&A intent, set search_mode flag)
-- [ ] T069 [US4] Enhance retrieval service for discovery queries in backend/src/services/retrieval_service.py (when search_mode=true, return top-10 results instead of top-5, group results by chapter, include all matching sections)
-- [ ] T070 [US4] Update RAG agent instructions for discovery responses in backend/src/agents/rag_agent.py (when search_mode=true, format response as list of locations with brief context, include citation links for each location)
+- [X] T068 [US4] Add query classification in backend/src/agents/rag_agent.py (detect search/discovery intent from patterns: "where is", "find", "show me all", vs Q&A intent, set search_mode flag)
+- [X] T069 [US4] Enhance retrieval service for discovery queries in backend/src/services/retrieval_service.py (when search_mode=true, return top-10 results instead of top-5, group results by chapter, include all matching sections)
+- [X] T070 [US4] Update RAG agent instructions for discovery responses in backend/src/agents/rag_agent.py (when search_mode=true, format response as list of locations with brief context, include citation links for each location)
 
 #### Frontend - Link Rendering
 
-- [ ] T071 [US4] Update ChatBot styling for citation links in book/src/components/ChatBot/ChatBot.css (style citations as clickable buttons/chips, add hover effects, ensure mobile-friendly tap targets)
-- [ ] T072 [US4] Test link navigation in book environment (click citation link in ChatBot, verify navigation to correct book page with anchor to section, verify back button returns to ChatBot)
+- [X] T071 [US4] Update ChatBot styling for citation links in book/src/components/ChatBot/ChatBot.css (style citations as clickable buttons/chips, add hover effects, ensure mobile-friendly tap targets)
+- [X] T072 [US4] Test link navigation in book environment (click citation link in ChatBot, verify navigation to correct book page with anchor to section, verify back button returns to ChatBot)
 
 #### Testing for User Story 4
 
-- [ ] T073 [US4] Integration test for discovery queries in backend/tests/integration/test_rag_flow.py (ask "Where is obstacle avoidance discussed?", verify response lists multiple locations with chapter names, verify all citations are valid URLs)
+- [X] T073 [US4] Integration test for discovery queries in backend/tests/integration/test_rag_flow.py (ask "Where is obstacle avoidance discussed?", verify response lists multiple locations with chapter names, verify all citations are valid URLs)
 
 **Checkpoint**: All four user stories complete - full chatbot functionality delivered
 

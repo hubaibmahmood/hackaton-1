@@ -114,3 +114,54 @@ def test_chat_endpoint_with_selection(mock_rag_agent, mock_session_service):
     assert call_kwargs["user_message"] == "Explain this"
     assert call_kwargs["selected_text"] == "LIDAR works by emitting laser pulses."
     assert call_kwargs["current_page_url"] == "/docs/chapter-2"
+
+def test_chat_endpoint_contextual(mock_rag_agent, mock_session_service):
+    # Mock agent response to simulate contextual advice
+    mock_rag_agent.run = AsyncMock(return_value={
+        "answer": "Based on your location in Chapter 3, you should review Chapters 1 and 2.",
+        "citations": [],
+        "session_id": "test-uuid"
+    })
+
+    response = client.post(
+        "/api/chat/",
+        json={
+            "message": "What are prerequisites?",
+            "current_page_url": "/docs/part-01/chapter-03"
+        },
+        headers={"Cookie": "session_id=test-uuid"}
+    )
+
+    assert response.status_code == 200
+    data = response.json()
+    assert "Chapters 1 and 2" in data["message"]
+    
+    # Verify agent called with page context
+    mock_rag_agent.run.assert_called_once()
+    call_kwargs = mock_rag_agent.run.call_args[1]
+    assert call_kwargs["current_page_url"] == "/docs/part-01/chapter-03"
+
+def test_chat_endpoint_discovery(mock_rag_agent, mock_session_service):
+    # Mock agent response for discovery query
+    mock_rag_agent.run = AsyncMock(return_value={
+        "answer": "Obstacle avoidance is discussed in Chapter 2 (LIDAR) and Chapter 4 (Navigation).",
+        "citations": [
+            {"text": "Chapter 2 > LIDAR", "url": "/docs/ch2#lidar"},
+            {"text": "Chapter 4 > Navigation", "url": "/docs/ch4#nav"}
+        ],
+        "session_id": "test-uuid"
+    })
+
+    response = client.post(
+        "/api/chat/",
+        json={"message": "Where is obstacle avoidance discussed?"},
+        headers={"Cookie": "session_id=test-uuid"}
+    )
+
+    assert response.status_code == 200
+    data = response.json()
+    assert len(data["citations"]) == 2
+    assert "Obstacle avoidance" in data["message"]
+    
+    # Verify agent run called
+    mock_rag_agent.run.assert_called_once()

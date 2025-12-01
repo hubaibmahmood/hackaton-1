@@ -3,6 +3,7 @@
  */
 import React, { useState, useRef, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
+import { useLocation } from '@docusaurus/router';
 import { FloatingButton } from './FloatingButton';
 import { SelectionMenu } from './SelectionMenu';
 import { useTextSelection } from '../../hooks/useTextSelection';
@@ -21,8 +22,41 @@ export const ChatBot: React.FC<ChatBotProps> = ({ apiUrl }) => {
   const [error, setError] = useState<string | null>(null);
   const [selectedContext, setSelectedContext] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null); // Ref for textarea
+  const location = useLocation();
   
   const { text: selectedText, rect: selectionRect } = useTextSelection();
+
+  // Page context for display
+  const [pageContext, setPageContext] = useState<string>('');
+
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto'; // Reset height to recalculate
+      textareaRef.current.style.height = textareaRef.current.scrollHeight + 'px';
+    }
+  }, [input]); // Auto-resize when input changes
+
+  useEffect(() => {
+    if (isOpen && typeof window !== 'undefined') {
+      const path = window.location.pathname;
+      // Extract readable context
+      // Expected format: .../docs/part-XX-name/chapter-YY-name
+      const parts = path.split('/').filter(p => p && p !== 'docs');
+      
+      const relevant = parts.filter(p => p.startsWith('part-') || p.startsWith('chapter-'));
+      if (relevant.length > 0) {
+           const ctx = relevant.map(p => {
+               // Remove prefix numbering for cleaner display if needed, or just format
+               // part-01-physical-ai -> Part 01 Physical Ai
+               return p.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+           }).join(' > ');
+           setPageContext(ctx);
+      } else {
+           setPageContext('');
+      }
+    }
+  }, [isOpen, location]);
 
   // Scroll to bottom when chat opens (instant)
   useEffect(() => {
@@ -153,6 +187,11 @@ export const ChatBot: React.FC<ChatBotProps> = ({ apiUrl }) => {
         <div className="chatbot-container">
           <div className="chatbot-header">
             <h3 className="chatbot-title">Physical AI Assistant</h3>
+            {pageContext && (
+              <p className="chatbot-context-badge" style={{ fontSize: '0.75rem', opacity: 0.9, margin: '4px 0', background: 'rgba(255,255,255,0.2)', padding: '2px 6px', borderRadius: '4px', display: 'inline-block' }}>
+                {pageContext}
+              </p>
+            )}
             <p className="chatbot-subtitle">Ask questions about the book</p>
           </div>
 
@@ -225,12 +264,13 @@ export const ChatBot: React.FC<ChatBotProps> = ({ apiUrl }) => {
 
           <div className="chatbot-input-container">
             <textarea
+              ref={textareaRef} // Attach ref
               className="chatbot-input"
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyPress={handleKeyPress}
               placeholder="Ask a question..."
-              rows={1}
+              // rows={1} // Removed for auto-sizing
               disabled={isLoading}
             />
             <button

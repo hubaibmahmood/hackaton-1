@@ -1,10 +1,12 @@
 "MDX parser and chunker for content indexing."
 import logging
+import re
 from typing import List, Dict, Any, Optional
 import frontmatter
 import tiktoken
 from markdown_it import MarkdownIt
 from markdown_it.tree import SyntaxTreeNode
+from pathlib import Path
 
 from src.config import settings
 from src.models.content import BookChunk, ChunkMetadata
@@ -19,7 +21,15 @@ class ContentChunker:
         self.tokenizer = tiktoken.get_encoding("cl100k_base")
         self.md = MarkdownIt()
         
-        # Config from settings
+        # Determine project root and Docusaurus docs root once
+        # Assuming current file is backend/src/indexing/chunker.py
+        # Path(__file__).resolve() -> .../book-generation/backend/src/indexing/chunker.py
+        # .parent (chunker.py) -> .../book-generation/backend/src/indexing
+        # .parent (indexing) -> .../book-generation/backend/src
+        # .parent (src) -> .../book-generation/backend
+        # .parent (backend) -> .../book-generation (project root)
+        self.project_root = Path(__file__).resolve().parent.parent.parent.parent
+        self.docusaurus_docs_root = self.project_root / "book" / "docs"
         self.chunk_size = settings.chunk_size_tokens
         self.chunk_overlap = settings.chunk_overlap_tokens
 
@@ -137,20 +147,32 @@ class ContentChunker:
         
         # Create metadata object
         try:
+            # Generate stable section_id and chunk_id
+            section_id = section_title.lower().replace(" ", "-").replace(":", "") # Basic slugify
+            chunk_id = f"{Path(source_url).stem}-{section_id}-{len(chunks)}"
+
+            doc_url = self._generate_docusaurus_url(source_url)
+            citation_url_with_anchor = self._generate_docusaurus_url(source_url, section_id)
+            
+            # Determine context
+            prereqs, nexts = self._determine_context(Path(source_url))
+            
             chunk_meta = ChunkMetadata(
-                document_id=source_url, # Use path as ID for now
+                document_id=chunk_id, # Use generated chunk_id as document_id
                 document_path=source_url,
-                document_url=source_url, # Todo: Convert to actual URL
+                document_url=doc_url,
                 chapter_title=chapter_title,
                 heading_path=section_stack,
                 heading_level=len(section_stack),
-                section_id=section_title.lower().replace(" ", "-"),
+                section_id=section_id,
                 chunk_index=len(chunks),
-                chunk_id=f"{source_url}_{len(chunks)}",
+                chunk_id=chunk_id,
                 citation_text=f"{chapter_title} > {section_title}",
-                citation_url=source_url, # Todo: Add anchor
+                citation_url=citation_url_with_anchor,
                 token_count=len(self.tokenizer.encode(full_text)),
-                character_count=len(full_text)
+                character_count=len(full_text),
+                prerequisite_chapters=prereqs,
+                next_topics=nexts
             )
             
             chunk = BookChunk(
@@ -163,6 +185,95 @@ class ContentChunker:
             logger.warning(f"Failed to create chunk metadata: {e}")
             # Fallback or skip
             pass
+
+    def _determine_context(self, file_path: Path) -> tuple[list[str], list[str]]:
+        """Determine prerequisites and next topics based on file path structure."""
+        prerequisites = []
+        next_topics = []
+        
+        try:
+            # Convert to relative path from docs root
+            try:
+                rel_path = file_path.relative_to(self.docusaurus_docs_root)
+            except ValueError:
+                # Fallback if file is not in docs root (e.g. during testing)
+                return [], []
+
+            parts = rel_path.parts
+            if not parts:
+                return [], []
+
+            # specific logic for part-XX/chapter-YY
+            current_part_num = 0
+            current_chapter_num = 0
+            
+            # regex for part-XX-name or part-XX
+            part_match = re.match(r"part-(\d+)(?:-.*)?", parts[0])
+            if part_match:
+                current_part_num = int(part_match.group(1))
+                
+                # Add previous parts as prerequisites
+                for i in range(1, current_part_num):
+                    prerequisites.append(f"Part {i}")
+
+            if len(parts) > 1:
+                # regex for chapter-YY-name
+                chapter_match = re.match(r"chapter-(\d+)(?:-.*)?", parts[1])
+                if chapter_match:
+                    current_chapter_num = int(chapter_match.group(1))
+                    # Add previous chapters in same part
+                    for i in range(1, current_chapter_num):
+                         prerequisites.append(f"Part {current_part_num}, Chapter {i}")
+            
+            if current_chapter_num > 0:
+                 next_topics.append(f"Part {current_part_num}, Chapter {current_chapter_num + 1}")
+            elif current_part_num > 0:
+                 # If we are at part root (intro), next is chapter 1
+                 next_topics.append(f"Part {current_part_num}, Chapter 1")
+                 
+            # Also suggest next part
+            if current_part_num > 0:
+                next_topics.append(f"Part {current_part_num + 1}")
+
+        except Exception as e:
+            logger.warning(f"Context determination failed: {e}")
+            
+        return prerequisites, next_topics
+
+    def _generate_docusaurus_url(self, file_path: str, section_id: Optional[str] = None) -> str:
+        """Converts a local file path to a Docusaurus URL.
+        
+        Example: /path/to/project/book/docs/part-01-physical-ai/chapter-01-physical-ai-overview/index.md
+        Goal: /docs/part-01-physical-ai/chapter-01-physical-ai-overview
+        """
+        # Ensure file_path is a Path object for easier manipulation
+        path_obj = Path(file_path)
+        
+        # Log paths for debugging
+        logger.debug(f"Path object for URL generation: {path_obj}")
+        logger.debug(f"Relative to path: {Path.cwd() / 'book' / 'docs'}")
+
+        # Find the 'docs' part in the path
+        try:
+            # Assumes 'book/docs' is the root for Docusaurus docs
+            relative_to_docs = path_obj.relative_to(self.docusaurus_docs_root)
+        except ValueError:
+            logger.warning(f"File path {file_path} is not under {self.docusaurus_docs_root}. Cannot generate Docusaurus URL.")
+            return "" # Return empty string or fallback
+
+        url_parts = []
+        for part in relative_to_docs.parts:
+            if part.endswith(('.md', '.mdx')):
+                part = part[:-len('.md')] if part.endswith('.md') else part[:-len('.mdx')]
+            if part == 'index':
+                continue
+            url_parts.append(part)
+        
+        base_url = settings.docusaurus_base_url + "docs/" + "/".join(url_parts)
+        
+        if section_id:
+            return f"{base_url}#{section_id}"
+        return base_url
 
     def _get_node_text(self, node) -> str:
         """Extract plain text from a node (recursive)."""

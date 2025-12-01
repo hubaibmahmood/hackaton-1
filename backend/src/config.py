@@ -33,6 +33,12 @@ class Settings(BaseSettings):
         description="Frontend origin for CORS"
     )
 
+    # Docusaurus Frontend URL (for absolute citations)
+    docusaurus_base_url: str = Field(
+        default="http://localhost:3000/hackaton-1/", # Matches Docusaurus config.ts baseUrl
+        description="Base URL for Docusaurus frontend, used for generating absolute citation links"
+    )
+
     # Logging Configuration
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"] = Field(
         default="INFO",

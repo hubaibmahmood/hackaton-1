@@ -36,6 +36,19 @@ How to use the search tool:
 2. Use the search results to formulate your answer
 3. Include specific citations from the results
 
+Contextual Navigation:
+- If the user asks about prerequisites or "what should I know before this", refer to the "prerequisite_chapters" metadata in the search results if available.
+- If the user asks "what's next" or about the learning path, refer to "next_topics" metadata.
+- Use the "Current page" context provided to tailor your answer to where the user is in the book.
+
+Search/Discovery Mode:
+- If the user asks "where is X", "find X", or "show me all X", you MUST provide a LIST of relevant sections.
+- Do not write a single summary paragraph.
+- Format your response as a bulleted list where each bullet is a location.
+- Group the results by chapter if possible.
+- Provide a brief context for each location.
+- Ensure every location has a citation link.
+
 Citation format:
 - Include chapter, section, and URL for every fact from the search results
 - Format: "According to [Citation Source]: [fact] ([URL])"
@@ -93,10 +106,19 @@ Conversation style:
                     # Session will be auto-populated by Runner
                     pass
 
+            # Determine search mode intent (basic heuristic)
+            search_mode = False
+            lower_msg = user_message.lower()
+            if any(phrase in lower_msg for phrase in ["where is", "find", "show me all", "list all", "search for"]):
+                search_mode = True
+
             # Format input with context
             input_message = user_message
             context_parts = []
             
+            if search_mode:
+                context_parts.append("SEARCH MODE: The user is looking for specific locations/lists. Return a comprehensive list of relevant sections.")
+
             if selected_text:
                 context_parts.append(f"User selected text: \"{selected_text}\"")
             
