@@ -2,6 +2,7 @@
  * Main ChatBot component with ChatKit integration
  */
 import React, { useState, useRef, useEffect } from 'react';
+import ReactMarkdown from 'react-markdown';
 import { FloatingButton } from './FloatingButton';
 import { SelectionMenu } from './SelectionMenu';
 import { useTextSelection } from '../../hooks/useTextSelection';
@@ -163,22 +164,12 @@ export const ChatBot: React.FC<ChatBotProps> = ({ apiUrl }) => {
                       </div>
                     )}
                     
-                    {selectedContext && (
-                      <div className="chatbot-context-preview">
-                        <div className="chatbot-context-header">
-                          <span>Selected Context</span>
-                          <button onClick={() => setSelectedContext(null)}>×</button>
-                        </div>
-                        <p>"{selectedContext.substring(0, 100)}{selectedContext.length > 100 ? '...' : ''}"</p>
-                      </div>
-                    )}
-          
                     {messages.map((message, index) => (              <div
                 key={index}
                 className={`chatbot-message chatbot-message--${message.role}`}
               >
                 <div className="chatbot-message-content">
-                  {message.content}
+                  <ReactMarkdown>{message.content}</ReactMarkdown>
                 </div>
 
                 {message.citations && message.citations.length > 0 && (
@@ -221,6 +212,16 @@ export const ChatBot: React.FC<ChatBotProps> = ({ apiUrl }) => {
 
             <div ref={messagesEndRef} />
           </div>
+
+          {selectedContext && (
+            <div className="chatbot-context-preview">
+              <div className="chatbot-context-header">
+                <span>Selected Context</span>
+                <button onClick={() => setSelectedContext(null)}>×</button>
+              </div>
+              <p>"{selectedContext.substring(0, 100)}{selectedContext.length > 100 ? '...' : ''}"</p>
+            </div>
+          )}
 
           <div className="chatbot-input-container">
             <textarea
