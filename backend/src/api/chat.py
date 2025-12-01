@@ -96,6 +96,8 @@ async def chat(
             user_message=request.message,
             session_id=str(sess_uuid),
             conversation_history=conversation_history,
+            selected_text=request.selected_text,
+            current_page_url=request.current_page_url,
         )
 
         # Persist assistant message
@@ -198,6 +200,8 @@ async def chat_stream(
                     user_message=request.message,
                     session_id=str(sess_uuid),
                     conversation_history=conversation_history,
+                    selected_text=request.selected_text,
+                    current_page_url=request.current_page_url,
                 ):
                     yield f"data: {json.dumps(event)}\n\n"
 

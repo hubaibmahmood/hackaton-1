@@ -3,6 +3,8 @@
  */
 import React, { useState, useRef, useEffect } from 'react';
 import { FloatingButton } from './FloatingButton';
+import { SelectionMenu } from './SelectionMenu';
+import { useTextSelection } from '../../hooks/useTextSelection';
 import { chatService, type ChatMessage, type Citation } from '../../services/chatService';
 import './ChatBot.css';
 
@@ -16,7 +18,10 @@ export const ChatBot: React.FC<ChatBotProps> = ({ apiUrl }) => {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [selectedContext, setSelectedContext] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  
+  const { text: selectedText, rect: selectionRect } = useTextSelection();
 
   // Scroll to bottom when chat opens (instant)
   useEffect(() => {
@@ -39,6 +44,14 @@ export const ChatBot: React.FC<ChatBotProps> = ({ apiUrl }) => {
     setError(null);
   };
 
+  const handleAskSelection = (text: string) => {
+    setIsOpen(true);
+    setSelectedContext(text);
+    // Pre-fill input or send immediately?
+    // Usually prompt user: "Ask about this..."
+    setInput(`What does this mean: "${text.substring(0, 50)}..."?`);
+  };
+
   const handleSendMessage = async () => {
     if (!input.trim() || isLoading) return;
 
@@ -53,6 +66,10 @@ export const ChatBot: React.FC<ChatBotProps> = ({ apiUrl }) => {
     setInput('');
     setIsLoading(true);
     setError(null);
+    
+    // Capture and clear context for this message
+    const context = selectedContext;
+    setSelectedContext(null);
 
     try {
       // Use streaming for better UX
@@ -61,6 +78,7 @@ export const ChatBot: React.FC<ChatBotProps> = ({ apiUrl }) => {
 
       for await (const event of chatService.sendMessageStreaming({
         message: userMessage.content,
+        selected_text: context || undefined, // Send selection if available
         current_page_url: chatService.getCurrentPageUrl(),
       })) {
         if (event.type === 'content' && event.content) {
@@ -123,6 +141,11 @@ export const ChatBot: React.FC<ChatBotProps> = ({ apiUrl }) => {
 
   return (
     <>
+      <SelectionMenu 
+        text={selectedText} 
+        rect={selectionRect} 
+        onAsk={handleAskSelection} 
+      />
       <FloatingButton onClick={handleToggle} isOpen={isOpen} />
 
       {isOpen && (
@@ -132,16 +155,25 @@ export const ChatBot: React.FC<ChatBotProps> = ({ apiUrl }) => {
             <p className="chatbot-subtitle">Ask questions about the book</p>
           </div>
 
-          <div className="chatbot-messages">
-            {messages.length === 0 && (
-              <div className="chatbot-welcome">
-                <p>👋 Hi! I'm your Physical AI assistant.</p>
-                <p>Ask me anything about robotics, ROS2, sensors, or topics covered in this textbook.</p>
-              </div>
-            )}
-
-            {messages.map((message, index) => (
-              <div
+                  <div className="chatbot-messages">
+                    {messages.length === 0 && (
+                      <div className="chatbot-welcome">
+                        <p>👋 Hi! I'm your Physical AI assistant.</p>
+                        <p>Ask me anything about robotics, ROS2, sensors, or topics covered in this textbook.</p>
+                      </div>
+                    )}
+                    
+                    {selectedContext && (
+                      <div className="chatbot-context-preview">
+                        <div className="chatbot-context-header">
+                          <span>Selected Context</span>
+                          <button onClick={() => setSelectedContext(null)}>×</button>
+                        </div>
+                        <p>"{selectedContext.substring(0, 100)}{selectedContext.length > 100 ? '...' : ''}"</p>
+                      </div>
+                    )}
+          
+                    {messages.map((message, index) => (              <div
                 key={index}
                 className={`chatbot-message chatbot-message--${message.role}`}
               >

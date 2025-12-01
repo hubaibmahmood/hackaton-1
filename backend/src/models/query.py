@@ -1,5 +1,5 @@
 """Query and Response models for chatbot interactions."""
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 from uuid import UUID
 
@@ -11,7 +11,7 @@ class Query(BaseModel):
 
     question: str = Field(..., description="User's question text", min_length=1, max_length=2000)
     session_id: Optional[UUID] = Field(None, description="Session identifier for conversation context")
-    timestamp: datetime = Field(default_factory=datetime.utcnow, description="Query timestamp")
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc), description="Query timestamp")
 
     # Page context (will be used in User Story 3)
     current_page_url: Optional[str] = Field(None, description="Current page URL for context")
@@ -28,7 +28,7 @@ class Response(BaseModel):
     answer: str = Field(..., description="Generated answer text")
     citations: list[dict] = Field(default_factory=list, description="List of source citations")
     confidence_score: Optional[float] = Field(None, description="Confidence score (0-1)", ge=0.0, le=1.0)
-    timestamp: datetime = Field(default_factory=datetime.utcnow, description="Response timestamp")
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc), description="Response timestamp")
     session_id: UUID = Field(..., description="Session identifier")
 
 

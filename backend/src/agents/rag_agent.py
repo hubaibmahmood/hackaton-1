@@ -67,6 +67,8 @@ Conversation style:
         user_message: str,
         session_id: str,
         conversation_history: Optional[list[dict]] = None,
+        selected_text: Optional[str] = None,
+        current_page_url: Optional[str] = None,
     ) -> dict:
         """Run the agent with a user message.
 
@@ -74,6 +76,8 @@ Conversation style:
             user_message: User's question
             session_id: Session identifier for conversation tracking
             conversation_history: Previous conversation messages (optional)
+            selected_text: Text selected by the user (optional)
+            current_page_url: Current page URL for context (optional)
 
         Returns:
             Agent response with answer and citations
@@ -89,10 +93,23 @@ Conversation style:
                     # Session will be auto-populated by Runner
                     pass
 
+            # Format input with context
+            input_message = user_message
+            context_parts = []
+            
+            if selected_text:
+                context_parts.append(f"User selected text: \"{selected_text}\"")
+            
+            if current_page_url:
+                context_parts.append(f"Current page: {current_page_url}")
+                
+            if context_parts:
+                input_message = f"Context:\n{'\n'.join(context_parts)}\n\nQuestion: {user_message}"
+
             # Run agent
             result = await Runner.run(
                 starting_agent=self.agent,
-                input=user_message,
+                input=input_message,
                 session=session,
                 max_turns=10,
                 run_config=RunConfig(
@@ -127,6 +144,8 @@ Conversation style:
         user_message: str,
         session_id: str,
         conversation_history: Optional[list[dict]] = None,
+        selected_text: Optional[str] = None,
+        current_page_url: Optional[str] = None,
     ) -> AsyncGenerator[dict, None]:
         """Run the agent with streaming responses.
 
@@ -134,6 +153,8 @@ Conversation style:
             user_message: User's question
             session_id: Session identifier
             conversation_history: Previous conversation messages (optional)
+            selected_text: Text selected by the user (optional)
+            current_page_url: Current page URL for context (optional)
 
         Yields:
             Chunks of the response with type indicators
@@ -148,10 +169,23 @@ Conversation style:
                     # Session will be auto-populated by Runner
                     pass
 
+            # Format input with context
+            input_message = user_message
+            context_parts = []
+            
+            if selected_text:
+                context_parts.append(f"User selected text: \"{selected_text}\"")
+            
+            if current_page_url:
+                context_parts.append(f"Current page: {current_page_url}")
+                
+            if context_parts:
+                input_message = f"Context:\n{'\n'.join(context_parts)}\n\nQuestion: {user_message}"
+
             # Run agent with streaming
             result = Runner.run_streamed(
                 starting_agent=self.agent,
-                input=user_message,
+                input=input_message,
                 session=session,
                 max_turns=10,
                 run_config=RunConfig(

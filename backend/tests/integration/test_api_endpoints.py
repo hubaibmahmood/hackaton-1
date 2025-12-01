@@ -87,3 +87,30 @@ def test_chat_endpoint_rate_limit(mock_rag_agent, mock_session_service):
     )
 
     assert response.status_code == 429
+
+def test_chat_endpoint_with_selection(mock_rag_agent, mock_session_service):
+    # Mock agent response
+    mock_rag_agent.run = AsyncMock(return_value={
+        "answer": "Answer about selection",
+        "citations": [],
+        "session_id": "test-uuid"
+    })
+
+    response = client.post(
+        "/api/chat/",
+        json={
+            "message": "Explain this",
+            "selected_text": "LIDAR works by emitting laser pulses.",
+            "current_page_url": "/docs/chapter-2"
+        },
+        headers={"Cookie": "session_id=test-uuid"}
+    )
+
+    assert response.status_code == 200
+    
+    # Verify agent called with selection arguments
+    mock_rag_agent.run.assert_called_once()
+    call_kwargs = mock_rag_agent.run.call_args[1]
+    assert call_kwargs["user_message"] == "Explain this"
+    assert call_kwargs["selected_text"] == "LIDAR works by emitting laser pulses."
+    assert call_kwargs["current_page_url"] == "/docs/chapter-2"

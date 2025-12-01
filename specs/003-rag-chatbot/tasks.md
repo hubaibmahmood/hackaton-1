@@ -135,21 +135,21 @@
 
 #### Frontend - Text Selection
 
-- [ ] T052 [P] [US2] Create useTextSelection hook in book/src/hooks/useTextSelection.ts (Selection API: listen to selectionchange event, track selected text + range, handle empty selections, support mobile touch events)
-- [ ] T053 [P] [US2] Create SelectionMenu component in book/src/components/ChatBot/SelectionMenu.tsx (use @floating-ui/react for positioning near selection, show "Ask about selection" button, handle click to open ChatBot with selected text)
-- [ ] T054 [US2] Add mobile touch support in book/src/hooks/useTextSelection.ts (handle touchend/touchstart events for mobile text selection, detect long-press, show menu on touch selection)
-- [ ] T055 [US2] Integrate SelectionMenu with ChatBot in book/src/components/ChatBot/ChatBot.tsx (pass selected_text to ChatProvider, pre-fill ChatInput with selection context, display selected text in chat UI)
+- [X] T052 [P] [US2] Create useTextSelection hook in book/src/hooks/useTextSelection.ts (Selection API: listen to selectionchange event, track selected text + range, handle empty selections, support mobile touch events)
+- [X] T053 [P] [US2] Create SelectionMenu component in book/src/components/ChatBot/SelectionMenu.tsx (use @floating-ui/react for positioning near selection, show "Ask about selection" button, handle click to open ChatBot with selected text)
+- [X] T054 [US2] Add mobile touch support in book/src/hooks/useTextSelection.ts (handle touchend/touchstart events for mobile text selection, detect long-press, show menu on touch selection)
+- [X] T055 [US2] Integrate SelectionMenu with ChatBot in book/src/components/ChatBot/ChatBot.tsx (pass selected_text to ChatProvider, pre-fill ChatInput with selection context, display selected text in chat UI)
 
 #### Backend - Selection Context Handling
 
-- [ ] T056 [US2] Extend Query model in backend/src/models/query.py (add optional selected_text field, add selection_metadata with location/range info)
-- [ ] T057 [US2] Update RAG agent instructions in backend/src/agents/rag_agent.py (handle selection context: when selected_text present, reference it explicitly in response, compare selection to retrieved book content)
-- [ ] T058 [US2] Modify /api/chat endpoint in backend/src/api/chat.py (accept optional selected_text parameter in ChatRequest, pass to agent as context, include in conversation history)
+- [X] T056 [US2] Extend Query model in backend/src/models/query.py (add optional selected_text field, add selection_metadata with location/range info)
+- [X] T057 [US2] Update RAG agent instructions in backend/src/agents/rag_agent.py (handle selection context: when selected_text present, reference it explicitly in response, compare selection to retrieved book content)
+- [X] T058 [US2] Modify /api/chat endpoint in backend/src/api/chat.py (accept optional selected_text parameter in ChatRequest, pass to agent as context, include in conversation history)
 
 #### Testing for User Story 2
 
-- [ ] T059 [P] [US2] Unit test for useTextSelection hook in book/tests/hooks/useTextSelection.test.ts (mock Selection API, verify state updates on selectionchange, verify cleanup on unmount)
-- [ ] T060 [US2] Integration test for selection queries in backend/tests/integration/test_api_endpoints.py (send chat request with selected_text, verify response references the selection, verify selection stored in conversation history)
+- [X] T059 [P] [US2] Unit test for useTextSelection hook in book/tests/hooks/useTextSelection.test.ts (mock Selection API, verify state updates on selectionchange, verify cleanup on unmount)
+- [X] T060 [US2] Integration test for selection queries in backend/tests/integration/test_api_endpoints.py (send chat request with selected_text, verify response references the selection, verify selection stored in conversation history)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work - general queries AND text selection queries
 
