@@ -104,22 +104,22 @@
 
 #### Content Indexing (enables RAG)
 
-- [ ] T039 [US1] Implement MDX parser with metadata extraction in backend/src/indexing/chunker.py (use unified/remark to parse MDX, extract frontmatter for part/chapter metadata, parse heading hierarchy for section tracking, attach metadata to each parsed section)
-- [ ] T040 [US1] Implement chunking logic in backend/src/indexing/chunker.py (chunk_text function: split by 400-500 tokens using tiktoken, add 10-15% overlap between chunks, preserve code blocks without splitting, maintain heading context in each chunk)
-- [ ] T041 [US1] Implement indexing pipeline orchestrator in backend/src/indexing/indexer.py (index_file function: read single MDX file, parse and chunk, generate embeddings, upload chunks to Qdrant with metadata, verify single file indexes successfully)
-- [ ] T042 [US1] Implement batch indexing for multiple files in backend/src/indexing/indexer.py (index_directory function: traverse book/docs/ recursively, process all .md/.mdx files, progress tracking, error handling per file, continue on individual failures)
-- [ ] T043 [US1] Create /api/index POST endpoint in backend/src/api/index.py (trigger manual indexing, accept directory path parameter, run indexing asynchronously using background task, return job ID)
-- [ ] T044 [US1] Index initial book content: Execute batch indexing on book/docs/ directory (~50-100 pages), verify completion without errors
-- [ ] T045 [US1] Validate indexed content in Qdrant: Query Qdrant for total chunk count (expect 50+), verify metadata present (chapter, section, citation_url), run sample search query for "ROS2" and verify results returned with correct metadata
+- [X] T039 [US1] Implement MDX parser with metadata extraction in backend/src/indexing/chunker.py (use unified/remark to parse MDX, extract frontmatter for part/chapter metadata, parse heading hierarchy for section tracking, attach metadata to each parsed section)
+- [X] T040 [US1] Implement chunking logic in backend/src/indexing/chunker.py (chunk_text function: split by 400-500 tokens using tiktoken, add 10-15% overlap between chunks, preserve code blocks without splitting, maintain heading context in each chunk)
+- [X] T041 [US1] Implement indexing pipeline orchestrator in backend/src/indexing/indexer.py (index_file function: read single MDX file, parse and chunk, generate embeddings, upload chunks to Qdrant with metadata, verify single file indexes successfully)
+- [X] T042 [US1] Implement batch indexing for multiple files in backend/src/indexing/indexer.py (index_directory function: traverse book/docs/ recursively, process all .md/.mdx files, progress tracking, error handling per file, continue on individual failures)
+- [X] T043 [US1] Create /api/index POST endpoint in backend/src/api/index.py (trigger manual indexing, accept directory path parameter, run indexing asynchronously using background task, return job ID)
+- [X] T044 [US1] Index initial book content: Execute batch indexing on book/docs/ directory (~50-100 pages), verify completion without errors
+- [X] T045 [US1] Validate indexed content in Qdrant: Query Qdrant for total chunk count (expect 50+), verify metadata present (chapter, section, citation_url), run sample search query for "ROS2" and verify results returned with correct metadata
 
 #### Testing for User Story 1
 
-- [ ] T046 [P] [US1] Unit test for embedding service in backend/tests/unit/test_embedding_service.py (mock OpenAI API, verify embeddings have shape [1536], test batch processing, test error handling)
-- [ ] T047 [P] [US1] Unit test for session service in backend/tests/unit/test_session_service.py (test rate limiting with multiple requests, test session expiry validation, test conversation history persistence)
-- [ ] T048 [P] [US1] Unit test for OpenAI Agents in backend/tests/unit/test_agents.py (mock agent.run(), verify custom tool calls to Qdrant, verify citation extraction from tool results)
-- [ ] T049 [US1] Integration test for /api/chat in backend/tests/integration/test_api_endpoints.py (send chat request, verify 200 response, verify response format includes answer + citations, test rate limit enforcement with 11th request)
-- [ ] T050 [US1] E2E test for RAG flow in backend/tests/integration/test_rag_flow.py (ask known question from book content, verify answer accuracy, verify citations reference correct chapters, test out-of-scope question detection)
-- [ ] T051 [P] [US1] Frontend component test in book/tests/ChatBot.test.tsx (render FloatingButton, simulate click to open ChatBot, simulate message send, verify API call made)
+- [X] T046 [P] [US1] Unit test for embedding service in backend/tests/unit/test_embedding_service.py (mock OpenAI API, verify embeddings have shape [1536], test batch processing, test error handling)
+- [X] T047 [P] [US1] Unit test for session service in backend/tests/unit/test_session_service.py (test rate limiting with multiple requests, test session expiry validation, test conversation history persistence)
+- [X] T048 [P] [US1] Unit test for OpenAI Agents in backend/tests/unit/test_agents.py (mock agent.run(), verify custom tool calls to Qdrant, verify citation extraction from tool results)
+- [X] T049 [US1] Integration test for /api/chat in backend/tests/integration/test_api_endpoints.py (send chat request, verify 200 response, verify response format includes answer + citations, test rate limit enforcement with 11th request)
+- [X] T050 [US1] E2E test for RAG flow in backend/tests/integration/test_rag_flow.py (ask known question from book content, verify answer accuracy, verify citations reference correct chapters, test out-of-scope question detection)
+- [X] T051 [P] [US1] Frontend component test in book/tests/ChatBot.test.tsx (render FloatingButton, simulate click to open ChatBot, simulate message send, verify API call made)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional - users can ask questions and get cited answers from book content
 

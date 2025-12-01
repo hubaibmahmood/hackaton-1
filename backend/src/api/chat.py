@@ -107,12 +107,12 @@ async def chat(
         )
 
         # Return response
-        from datetime import datetime
+        from datetime import datetime, timezone
         return ChatResponse(
             message=result["answer"],
             citations=result.get("citations", []),
             session_id=str(sess_uuid),
-            timestamp=datetime.utcnow().isoformat(),
+            timestamp=datetime.now(timezone.utc).isoformat(),
         )
 
     except HTTPException:
