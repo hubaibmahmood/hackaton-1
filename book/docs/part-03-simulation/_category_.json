@@ -1,8 +1,0 @@
-{
-  "label": "Part 3: Simulating Robots with Gazebo and Unity",
-  "position": 3,
-  "link": {
-    "type": "generated-index",
-    "description": "Utilize high-fidelity physics simulation for environment building and human-robot interaction."
-  }
-}

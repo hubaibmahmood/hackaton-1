@@ -102,7 +102,7 @@ const config: Config = {
           items: [
             {
               label: 'Start Reading',
-              to: '/docs/intro',
+              to: '/docs/part-01-physical-ai/intro',
             },
           ],
         },
