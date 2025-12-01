@@ -1,0 +1,46 @@
+services:
+  # FastAPI Backend Web Service
+  - type: web
+    name: rag-chatbot-backend
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12"
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: QDRANT_URL
+        sync: false
+      - key: QDRANT_API_KEY
+        sync: false
+      - key: NEON_DB_URL
+        sync: false
+      - key: FRONTEND_ORIGIN
+        value: https://hubaibmahmood.github.io
+      - key: LOG_LEVEL
+        value: INFO
+
+  # Daily Indexing Cron Job
+  - type: cron
+    name: daily-indexing
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    schedule: "0 2 * * *"
+    dockerCommand: uv run python -m src.indexing.scheduler
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12"
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: QDRANT_URL
+        sync: false
+      - key: QDRANT_API_KEY
+        sync: false
+      - key: NEON_DB_URL
+        sync: false
+      - key: LOG_LEVEL
+        value: INFO

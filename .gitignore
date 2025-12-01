@@ -9,7 +9,31 @@ book/build/
 book/.docusaurus/
 .cache-loader
 
+# Python Backend
+backend/.venv/
+backend/__pycache__/
+backend/**/__pycache__/
+backend/*.pyc
+backend/**/*.pyc
+backend/*.pyo
+backend/**/*.pyo
+backend/*.egg-info/
+backend/dist/
+backend/build/
+backend/.pytest_cache/
+backend/.coverage
+backend/htmlcov/
+backend/.mypy_cache/
+backend/.ruff_cache/
+
+# Environment Variables
+.env
+.env.*
+!.env.example
+
 # Misc
 .DS_Store
 *.log
-.env
+*.swp
+*.swo
+*~
