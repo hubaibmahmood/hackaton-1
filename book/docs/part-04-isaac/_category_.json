@@ -1,9 +1,0 @@
-{
-  "label": "🖥️ Part 4: NVIDIA Isaac Integration",
-  "position": 4,
-  "collapsed": false,
-  "link": {
-    "type": "generated-index",
-    "description": "Leverage NVIDIA Isaac Sim and Isaac ROS for advanced AI and robotics applications."
-  }
-}
