@@ -343,4 +343,4 @@ Let's build your first ROS 2 node.
 
 ---
 
-**Ready to start?** Proceed to [Chapter 1: ROS 2 Installation and Setup](./chapter-01-installation) to install ROS 2 Humble and verify your development environment.
+**Note**: Part 2 chapters are currently under development. Check back soon for detailed ROS 2 tutorials and hands-on exercises.
