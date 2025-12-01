@@ -78,9 +78,7 @@ async def health_check():
 
 
 # Register API routes
-from src.api import chat
+from src.api import chat, index
 
 app.include_router(chat.router, prefix="/api/chat", tags=["chat"])
-# Index router will be added when indexing pipeline is complete
-# from src.api import index
-# app.include_router(index.router, prefix="/api/index", tags=["index"])
+app.include_router(index.router, prefix="/api/index", tags=["index"])

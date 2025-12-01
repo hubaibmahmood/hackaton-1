@@ -49,7 +49,7 @@ class Settings(BaseSettings):
     embedding_dimensions: int = Field(default=1536, description="Embedding vector dimensions")
 
     # RAG Configuration
-    similarity_threshold: float = Field(default=0.7, description="Minimum similarity score for retrieval")
+    similarity_threshold: float = Field(default=0.5, description="Minimum similarity score for retrieval")
     top_k_results: int = Field(default=5, description="Number of chunks to retrieve")
     chunk_size_tokens: int = Field(default=450, description="Target chunk size in tokens")
     chunk_overlap_tokens: int = Field(default=60, description="Overlap between chunks in tokens")

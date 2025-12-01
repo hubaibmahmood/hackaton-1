@@ -90,6 +90,36 @@ class QdrantDB:
             logger.error(f"Failed to insert test vector: {e}")
             return False
 
+    async def upsert_chunks(self, chunks: list[dict]) -> bool:
+        """Upsert multiple chunks into the collection.
+
+        Args:
+            chunks: List of chunk dictionaries (must contain id, vector, payload)
+
+        Returns:
+            bool: True if upsert successful
+        """
+        try:
+            points = [
+                PointStruct(
+                    id=chunk["id"],
+                    vector=chunk["vector"],
+                    payload=chunk["payload"],
+                )
+                for chunk in chunks
+            ]
+            
+            self.client.upsert(
+                collection_name=self.collection_name,
+                points=points,
+            )
+            logger.info(f"Upserted {len(points)} chunks successfully")
+            return True
+            
+        except Exception as e:
+            logger.error(f"Failed to upsert chunks: {e}")
+            return False
+
     def search(
         self,
         query_vector: list[float],
@@ -112,12 +142,13 @@ class QdrantDB:
             score_threshold = settings.similarity_threshold
 
         try:
-            results = self.client.search(
+            results = self.client.query_points(
                 collection_name=self.collection_name,
-                query_vector=query_vector,
+                query=query_vector,
                 limit=limit,
                 score_threshold=score_threshold,
-            )
+                with_payload=True,
+            ).points
             return [
                 {
                     "id": hit.id,
