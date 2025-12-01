@@ -91,4 +91,4 @@ Let's begin.
 
 ---
 
-**Ready to start?** Proceed to [Chapter 1: Overview of Physical AI and Embodied Intelligence](./chapter-01-introduction) to explore what makes Physical AI fundamentally different from the AI systems you already know.
+**Ready to start?** Proceed to [Chapter 1: Overview of Physical AI and Embodied Intelligence](./chapter-01-physical-ai-overview) to explore what makes Physical AI fundamentally different from the AI systems you already know.
