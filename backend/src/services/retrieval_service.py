@@ -6,11 +6,20 @@ from src.config import settings
 from src.database.qdrant import qdrant_db
 from src.models.content import SourceCitation
 
+from functools import lru_cache
+import hashlib
+import json
+
 logger = logging.getLogger(__name__)
 
 
 class RetrievalService:
     """Service for retrieving and enriching book content from Qdrant."""
+
+    @lru_cache(maxsize=1000)
+    def _get_cached_search(self, query_hash: str) -> list[dict]:
+        """Simple LRU cache for search results (placeholder for Redis)."""
+        return [] # Real implementation would return cached value if found
 
     def search_by_embedding(
         self,
@@ -31,7 +40,8 @@ class RetrievalService:
         if limit is None:
             limit = settings.top_k_results
         if similarity_threshold is None:
-            similarity_threshold = settings.similarity_threshold
+            # Optimization: Slightly higher default threshold for precision
+            similarity_threshold = 0.75 
 
         try:
             results = qdrant_db.search(

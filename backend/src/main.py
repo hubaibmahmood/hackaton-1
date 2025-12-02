@@ -2,8 +2,9 @@
 import logging
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.httpsredirect import HTTPSRedirectMiddleware
 
 from src.config import settings, setup_logging
 from src.database.postgres import postgres_db
@@ -47,6 +48,17 @@ app = FastAPI(
 # Add middleware (order matters - last added runs first)
 app.add_middleware(ErrorHandlingMiddleware)
 app.add_middleware(RequestLoggingMiddleware)
+
+# Enforce HTTPS in production (T081)
+# We check an environment variable or just add it if not in local dev
+# Render handles SSL termination, so we might not need strictly HTTPSRedirectMiddleware
+# if we trust X-Forwarded-Proto. But let's add it for completeness if needed,
+# or simpler: just rely on Render's redirection settings (usually default).
+# However, spec says "Add HTTPS enforcement".
+# NOTE: HTTPSRedirectMiddleware can cause loops behind some proxies if not configured right.
+# Safer to check if we are in production.
+if settings.environment == "production":
+    app.add_middleware(HTTPSRedirectMiddleware)
 
 # Configure CORS
 app.add_middleware(

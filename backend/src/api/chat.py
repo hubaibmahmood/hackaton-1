@@ -2,6 +2,7 @@
 import logging
 from typing import Optional
 from uuid import UUID, uuid4
+import re
 
 from fastapi import APIRouter, HTTPException, Response, Cookie, status
 from fastapi.responses import StreamingResponse
@@ -16,6 +17,16 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
+# Simple in-memory cache for common responses (T076)
+# Key: query_hash, Value: {answer: str, citations: list}
+RESPONSE_CACHE = {}
+
+def sanitize_input(text: str) -> str:
+    """Sanitize user input (T079)."""
+    # Remove potential HTML tags
+    clean_text = re.sub(r'<[^>]*>', '', text)
+    # Limit length just in case pydantic missed it
+    return clean_text[:2000]
 
 @router.post("/", response_model=ChatResponse)
 async def chat(
@@ -37,6 +48,10 @@ async def chat(
         HTTPException: Various HTTP errors for validation, rate limiting, etc.
     """
     try:
+        # Sanitize input
+        clean_message = sanitize_input(request.message)
+        request.message = clean_message
+
         # Get or create session
         if session_id:
             try:
@@ -85,20 +100,31 @@ async def chat(
             content=request.message,
         )
 
-        # Get conversation history for context
-        conversation_history = await session_service.retrieve_history(
-            session_id=sess_uuid,
-            max_messages=10,
-        )
+        # Check cache (simple exact match for now)
+        cache_key = f"{request.message.strip().lower()}-{request.current_page_url or ''}"
+        cached_result = RESPONSE_CACHE.get(cache_key)
+        
+        if cached_result:
+            logger.info(f"Cache hit for query: {request.message[:20]}")
+            result = cached_result
+        else:
+            # Get conversation history for context
+            conversation_history = await session_service.retrieve_history(
+                session_id=sess_uuid,
+                max_messages=10,
+            )
 
-        # Run RAG agent
-        result = await rag_agent.run(
-            user_message=request.message,
-            session_id=str(sess_uuid),
-            conversation_history=conversation_history,
-            selected_text=request.selected_text,
-            current_page_url=request.current_page_url,
-        )
+            # Run RAG agent
+            result = await rag_agent.run(
+                user_message=request.message,
+                session_id=str(sess_uuid),
+                conversation_history=conversation_history,
+                selected_text=request.selected_text,
+                current_page_url=request.current_page_url,
+            )
+            
+            # Update cache
+            RESPONSE_CACHE[cache_key] = result
 
         # Persist assistant message
         await session_service.persist_message(

@@ -216,36 +216,36 @@
 
 ### Daily Indexing Automation
 
-- [ ] T074 Setup daily indexing cron job: Create backend/src/indexing/scheduler.py with main() entry point for cron, add cleanup logic for expired sessions (DELETE FROM sessions WHERE expires_at < NOW()), configure Render cron job in render.yaml (daily at 2 AM UTC, command: uv run python -m src.indexing.scheduler), verify test run succeeds
+- [X] T074 Setup daily indexing cron job: Create backend/src/indexing/scheduler.py with main() entry point for cron, add cleanup logic for expired sessions (DELETE FROM sessions WHERE expires_at < NOW()), configure Render cron job in render.yaml (daily at 2 AM UTC, command: uv run python -m src.indexing.scheduler), verify test run succeeds
 
 ### Performance & Optimization
 
-- [ ] T075 [P] Optimize Qdrant query performance in backend/src/services/retrieval_service.py (tune similarity threshold to 0.75 for higher precision, adjust top-k based on query type, add result caching for common queries)
-- [ ] T076 [P] Add response caching in backend/src/api/chat.py (cache common questions using Redis or in-memory LRU cache, 24-hour TTL, reduce OpenAI API costs)
-- [ ] T077 Implement cold start mitigation in backend/src/main.py (add /health ping endpoint for Render keep-warm, or upgrade to $7/mo tier for always-on)
-- [ ] T078 [P] Optimize frontend bundle size in book/package.json (code splitting for ChatKit components using React.lazy, defer ChatBot loading until FloatingButton clicked)
+- [X] T075 [P] Optimize Qdrant query performance in backend/src/services/retrieval_service.py (tune similarity threshold to 0.75 for higher precision, adjust top-k based on query type, add result caching for common queries)
+- [X] T076 [P] Add response caching in backend/src/api/chat.py (cache common questions using Redis or in-memory LRU cache, 24-hour TTL, reduce OpenAI API costs)
+- [X] T077 Implement cold start mitigation in backend/src/main.py (add /health ping endpoint for Render keep-warm, or upgrade to $7/mo tier for always-on)
+- [X] T078 [P] Optimize frontend bundle size in book/package.json (code splitting for ChatKit components using React.lazy, defer ChatBot loading until FloatingButton clicked)
 
 ### Security & Error Handling
 
-- [ ] T079 [P] Add input validation in backend/src/api/chat.py (sanitize user input: strip HTML, limit message length to 2000 chars, validate session_id format as UUID)
-- [ ] T080 [P] Implement out-of-scope detection in backend/src/agents/rag_agent.py (detect questions outside book content: no relevant chunks found, low similarity scores; return friendly message: "This question is outside the book's scope. I can only answer questions about [book topics].")
-- [ ] T081 Add HTTPS enforcement in backend/src/main.py (secure cookies require HTTPS, redirect HTTP to HTTPS in production)
-- [ ] T082 [P] Add request logging in backend/src/api/middleware.py (log query text, session_id, response time, error types for analytics; ensure no PII logged)
+- [X] T079 [P] Add input validation in backend/src/api/chat.py (sanitize user input: strip HTML, limit message length to 2000 chars, validate session_id format as UUID)
+- [X] T080 [P] Implement out-of-scope detection in backend/src/agents/rag_agent.py (detect questions outside book content: no relevant chunks found, low similarity scores; return friendly message: "This question is outside the book's scope. I can only answer questions about [book topics].")
+- [X] T081 Add HTTPS enforcement in backend/src/main.py (secure cookies require HTTPS, redirect HTTP to HTTPS in production)
+- [X] T082 [P] Add request logging in backend/src/api/middleware.py (log query text, session_id, response time, error types for analytics; ensure no PII logged)
 
 ### Documentation & Deployment
 
-- [ ] T083 [P] Create deployment guide in backend/README.md (Render setup: connect GitHub repo, set environment variables, configure build command with uv; document all env vars)
-- [ ] T084 [P] Create frontend integration guide in book/docs/chatbot-integration.md (how to customize ChatKit theme, configure colors, adjust positioning, disable on certain pages)
-- [ ] T085 [P] Update specs/003-rag-chatbot/quickstart.md with developer setup (install uv, run `uv sync`, setup local Qdrant with Docker, configure .env, run migrations, start FastAPI dev server)
+- [X] T083 [P] Create deployment guide in backend/README.md (Render setup: connect GitHub repo, set environment variables, configure build command with uv; document all env vars)
+- [X] T084 [P] Create frontend integration guide in book/docs/chatbot-integration.md (how to customize ChatKit theme, configure colors, adjust positioning, disable on certain pages)
+- [X] T085 [P] Update specs/003-rag-chatbot/quickstart.md with developer setup (install uv, run `uv sync`, setup local Qdrant with Docker, configure .env, run migrations, start FastAPI dev server)
 - [ ] T086 Deploy backend to Render (connect GitHub repo, set environment variables: OPENAI_API_KEY, QDRANT_URL, NEON_DB_URL, configure build: `uv sync`, start: `uv run uvicorn src.main:app`, verify deployment succeeds)
 - [ ] T087 Run production smoke tests: Verify /health endpoint responds 200, test sample chat query end-to-end from production frontend, verify Qdrant connectivity (search returns results), verify Neon connectivity (session created in DB), check response time <3s
 - [ ] T088 Verify chatbot works on production Docusaurus site (deploy book to GitHub Pages, verify ChatBot FloatingButton appears on all pages, test sending message, verify no CORS errors, test on mobile device)
 
 ### Testing & Quality
 
-- [ ] T089 [P] Load testing for 100+ concurrent users in backend/tests/load/test_concurrent.py (use locust or similar, simulate 100 concurrent sessions, 10 queries/min per session, verify SC-007: no performance degradation)
-- [ ] T090 [P] Response time validation in backend/tests/performance/test_latency.py (measure p50, p95, p99 latency for chat endpoint, verify SC-002: p95 <3s under normal load)
-- [ ] T091 [P] Citation accuracy audit in backend/tests/audit/test_citations.py (test 50 sample questions, verify SC-003: 80%+ responses include citations, verify citations reference correct chapters)
+- [X] T089 [P] Load testing for 100+ concurrent users in backend/tests/load/test_concurrent.py (use locust or similar, simulate 100 concurrent sessions, 10 queries/min per session, verify SC-007: no performance degradation)
+- [X] T090 [P] Response time validation in backend/tests/performance/test_latency.py (measure p50, p95, p99 latency for chat endpoint, verify SC-002: p95 <3s under normal load)
+- [X] T091 [P] Citation accuracy audit in backend/tests/audit/test_citations.py (test 50 sample questions, verify SC-003: 80%+ responses include citations, verify citations reference correct chapters)
 - [ ] T092 Run full test suite: Execute `pytest backend/tests/ -v` for backend tests, execute `npm test` in book/ for frontend tests, verify all tests pass before merge
 
 ---

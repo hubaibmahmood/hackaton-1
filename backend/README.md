@@ -1,226 +1,62 @@
 # RAG Chatbot Backend
 
-FastAPI backend for the Physical AI textbook chatbot using OpenAI Agents SDK and RAG.
+This is the backend service for the Physical AI Textbook Chatbot, built with FastAPI, OpenAI Agents SDK, and Qdrant.
 
-## Features
+## Deployment Guide (Render)
 
-- ✅ **OpenAI Agents SDK** - Custom tools with automatic execution
-- ✅ **RAG Pipeline** - Qdrant vector database + OpenAI embeddings
-- ✅ **Session Management** - Postgres with conversation history
-- ✅ **Rate Limiting** - 10 queries/minute per session
-- ✅ **Streaming Responses** - Server-Sent Events (SSE)
-- ✅ **CORS Enabled** - Ready for frontend integration
+This service is configured for deployment on [Render](https://render.com).
 
-## Tech Stack
+### Prerequisites
 
-- **Framework**: FastAPI 0.104+
-- **AI/ML**: OpenAI Agents SDK, OpenAI GPT-4o-mini, text-embedding-3-small
-- **Databases**: Qdrant (vectors), Neon Postgres (sessions)
-- **Python**: 3.12
-- **Package Manager**: uv (Rust-based)
+1.  **Render Account**: Create an account at [render.com](https://render.com).
+2.  **GitHub Repository**: Ensure this repository is connected to your Render account.
+3.  **External Services**:
+    *   **OpenAI API Key**: You need a valid API key.
+    *   **Qdrant Cloud**: Create a cluster at [cloud.qdrant.io](https://cloud.qdrant.io) and get the URL and API Key.
+    *   **Neon Postgres**: Create a database at [neon.tech](https://neon.tech) and get the connection string.
 
-## Setup
+### Setup Instructions
 
-### 1. Prerequisites
+1.  **New Web Service**: In Render dashboard, click "New +" -> "Web Service".
+2.  **Connect Repo**: Select your repository.
+3.  **Configuration**:
+    *   **Name**: `rag-chatbot-backend` (or similar)
+    *   **Region**: Choose one close to your users.
+    *   **Branch**: `main` (or your deployment branch)
+    *   **Root Directory**: `.` (project root)
+    *   **Runtime**: `Docker`
+    *   **Instance Type**: `Free` (for testing) or `Starter` ($7/mo) for production to avoid cold starts.
 
-- Python 3.12+
-- uv package manager (`curl -LsSf https://astral.sh/uv/install.sh | sh`)
-- Qdrant Cloud account (free tier)
-- Neon Serverless Postgres (free tier)
-- OpenAI API key
+4.  **Environment Variables**:
+    Add the following environment variables in the "Environment" tab:
 
-### 2. Install Dependencies
+    | Key | Value Description |
+    | :--- | :--- |
+    | `PYTHON_VERSION` | `3.12` |
+    | `OPENAI_API_KEY` | Your OpenAI API Key (sk-...) |
+    | `QDRANT_URL` | Your Qdrant Cluster URL (https://...) |
+    | `QDRANT_API_KEY` | Your Qdrant API Key |
+    | `NEON_DB_URL` | Postgres connection string (postgres://...) |
+    | `FRONTEND_ORIGIN` | URL of your deployed book (e.g., https://hubaibmahmood.github.io) |
+    | `LOG_LEVEL` | `INFO` |
+    | `ENVIRONMENT` | `production` |
 
-```bash
-cd backend
-uv sync
-```
+5.  **Deploy**: Click "Create Web Service". Render will build the Docker image and deploy it.
 
-### 3. Environment Variables
+### Cron Job (Daily Indexing)
 
-Copy `.env.example` to `.env` and fill in:
+To ensure the chatbot's knowledge is up-to-date:
 
-```bash
-cp .env.example .env
-```
+1.  **New Cron Job**: In Render dashboard, click "New +" -> "Cron Job".
+2.  **Connect Repo**: Select the same repository.
+3.  **Configuration**:
+    *   **Name**: `daily-indexing`
+    *   **Schedule**: `0 2 * * *` (Daily at 2 AM UTC)
+    *   **Command**: `uv run python -m src.indexing.scheduler`
+    *   **Root Directory**: `.`
+    *   **Runtime**: `Docker`
+4.  **Environment Variables**: Add the same variables as the Web Service.
 
-Required variables:
-- `OPENAI_API_KEY` - Your OpenAI API key
-- `QDRANT_URL` - Qdrant instance URL
-- `QDRANT_API_KEY` - Qdrant API key (optional for local)
-- `NEON_DB_URL` - Neon Postgres connection string
-- `FRONTEND_ORIGIN` - Frontend URL for CORS (default: http://localhost:3000)
-- `CHAT_MODEL` - OpenAI chat model (default: gpt-4o-mini)
+### Verification
 
-### 4. Run Migrations
-
-```bash
-uv run python -m src.database.migrate
-```
-
-### 5. Create Qdrant Collection
-
-```bash
-uv run python -c "
-import asyncio
-from src.database.qdrant import qdrant_db
-
-async def setup():
-    await qdrant_db.create_collection()
-    await qdrant_db.insert_test_vector()
-
-asyncio.run(setup())
-"
-```
-
-### 6. Start Server
-
-```bash
-# Development
-uv run uvicorn src.main:app --reload --host 0.0.0.0 --port 8000
-
-# Production
-uv run uvicorn src.main:app --host 0.0.0.0 --port 8000
-```
-
-## API Endpoints
-
-### Health Check
-```bash
-GET /health
-```
-
-### Chat (Regular)
-```bash
-POST /api/chat
-Content-Type: application/json
-
-{
-  "message": "What is a ROS2 node?",
-  "session_id": "optional-uuid",
-  "selected_text": "optional-selected-text",
-  "current_page_url": "optional-page-url"
-}
-```
-
-### Chat (Streaming)
-```bash
-POST /api/chat/stream
-Content-Type: application/json
-Accept: text/event-stream
-
-{
-  "message": "What is a ROS2 node?"
-}
-```
-
-## Project Structure
-
-```
-backend/
-├── src/
-│   ├── config.py              # Pydantic Settings
-│   ├── main.py                # FastAPI app
-│   ├── database/
-│   │   ├── postgres.py        # Postgres connection
-│   │   ├── qdrant.py          # Qdrant client
-│   │   └── migrations/        # SQL migrations
-│   ├── models/
-│   │   ├── query.py           # Request/response models
-│   │   ├── content.py         # Citation models
-│   │   └── session.py         # Session models
-│   ├── services/
-│   │   ├── embedding_service.py    # OpenAI embeddings
-│   │   ├── session_service.py      # Session management
-│   │   └── retrieval_service.py    # Qdrant search
-│   ├── agents/
-│   │   ├── tools.py           # Custom @function_tool
-│   │   └── rag_agent.py       # OpenAI Agents SDK
-│   └── api/
-│       ├── middleware.py      # Error handling
-│       └── chat.py            # Chat endpoints
-└── tests/
-    ├── unit/
-    ├── integration/
-    └── ...
-```
-
-## Testing
-
-```bash
-# Run all tests
-uv run pytest
-
-# Run specific test file
-uv run pytest tests/unit/test_embedding_service.py
-
-# Run with coverage
-uv run pytest --cov=src --cov-report=html
-```
-
-## Docker
-
-```bash
-# Build
-docker build -t rag-chatbot-backend .
-
-# Run
-docker run -p 8000:8000 --env-file .env rag-chatbot-backend
-```
-
-## Deployment (Render)
-
-1. Connect GitHub repository
-2. Select `backend/` as root directory
-3. Set environment variables in Render dashboard
-4. Deploy automatically on push
-
-See `render.yaml` for configuration.
-
-## OpenAI Agents SDK Usage
-
-The backend uses the OpenAI Agents SDK for intelligent tool calling:
-
-```python
-from agents import Agent, function_tool, Runner
-
-# Define custom tool
-@function_tool
-async def search_book_content(query: str) -> str:
-    # Your implementation
-    pass
-
-# Create agent
-agent = Agent(
-    name="Physical AI Assistant",
-    instructions="You are a helpful assistant...",
-    model="gpt-4o-mini",  # Cost-optimized model
-    tools=[search_book_content],
-)
-
-# Run agent
-result = await Runner.run(agent, "What is a ROS2 node?")
-```
-
-## Troubleshooting
-
-### Port already in use
-```bash
-# Find process using port 8000
-lsof -i :8000
-
-# Kill process
-kill -9 <PID>
-```
-
-### Database connection errors
-- Verify Neon connection string is correct
-- Check if Neon Postgres is active (free tier auto-pauses)
-
-### Qdrant errors
-- Verify Qdrant URL and API key
-- Ensure collection exists: run create_collection script
-
-## License
-
-MIT
+Once deployed, visit your service URL + `/health` (e.g., `https://rag-chatbot-backend.onrender.com/health`) to verify it returns `{"status": "ok"}`.

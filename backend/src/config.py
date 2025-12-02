@@ -16,6 +16,12 @@ class Settings(BaseSettings):
         extra="ignore",
     )
 
+    # Application Environment
+    environment: Literal["development", "production", "test"] = Field(
+        default="development",
+        description="Application environment"
+    )
+
     # OpenAI Configuration
     openai_api_key: str = Field(..., description="OpenAI API key")
 
