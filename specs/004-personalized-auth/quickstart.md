@@ -482,10 +482,10 @@ export const apiClient = axios.create({
 
 // Add JWT token to API client requests
 apiClient.interceptors.request.use((config) => {
-  const token = localStorage.getItem('jwt_token');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
+  // No need to manually add Authorization header from localStorage;
+  // httpOnly cookie will be automatically sent by the browser for same-origin requests.
+  // For cross-origin requests, ensure CORS 'withCredentials' is set to true and 
+  // backend handles cookie-based authentication.
   return config;
 });
 ```

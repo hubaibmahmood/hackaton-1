@@ -28,14 +28,14 @@ This feature uses microservices architecture:
 
 **Purpose**: Project initialization and basic structure for two-backend microservices architecture
 
-- [ ] T001 Create auth-server directory structure: src/{auth,database,utils,middleware,config}/, tests/, prisma/
-- [ ] T002 Initialize auth-server with package.json, tsconfig.json, and dependencies (better-auth 1.0+, Express 4.x, Prisma 5.x)
-- [ ] T003 Add npm scripts to auth-server/package.json (dev, build, start, test, lint)
-- [ ] T004 [P] Configure ESLint and Prettier for auth-server in .eslintrc.js and .prettierrc
-- [ ] T005 [P] Create environment templates in auth-server/.env.example and backend/.env.example (add JWT_SECRET to backend)
-- [ ] T006 [P] Create nodemon.json configuration for auth-server development with auto-reload
-- [ ] T007 [P] Setup Docker Compose file for local development with both servers in docker-compose.yml
-- [ ] T008 [P] Add helmet.js middleware for security headers in auth-server dependencies
+- [X] T001 Create auth-server directory structure: src/{auth,database,utils,middleware,config}/, tests/, prisma/
+- [X] T002 Initialize auth-server with package.json, tsconfig.json, and dependencies (better-auth 1.0+, Express 4.x, Prisma 5.x)
+- [X] T003 Add npm scripts to auth-server/package.json (dev, build, start, test, lint)
+- [X] T004 [P] Configure ESLint and Prettier for auth-server in .eslintrc.js and .prettierrc
+- [X] T005 [P] Create environment templates in auth-server/.env.example and backend/.env.example (add JWT_SECRET to backend)
+- [X] T006 [P] Create nodemon.json configuration for auth-server development with auto-reload
+- [X] T007 [P] Setup Docker Compose file for local development with both servers in docker-compose.yml
+- [X] T008 [P] Add helmet.js middleware for security headers in auth-server dependencies
 
 ---
 
@@ -47,9 +47,9 @@ This feature uses microservices architecture:
 
 ### Database Migrations
 
-- [ ] T009 Create Alembic migration file structure in backend/src/database/migrations/001_create_auth_tables.py
-- [ ] T010 Add users and user_sessions table definitions to migration with indexes
-- [ ] T011 Add user_profiles and tab_preferences table definitions to migration with JSONB indexes
+- [X] T009 Create Alembic migration file structure in backend/src/database/migrations/001_create_auth_tables.py
+- [X] T010 Add users and user_sessions table definitions to migration with indexes
+- [X] T011 Add user_profiles and tab_preferences table definitions to migration with JSONB indexes
 - [ ] T012 Run database migration to create all auth tables
 - [ ] T013 Create migration rollback script in backend/src/database/rollback_001.py
 

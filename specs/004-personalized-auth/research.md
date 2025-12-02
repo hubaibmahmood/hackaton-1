@@ -54,12 +54,12 @@ This document consolidates research findings for implementing personalized authe
 ```typescript
 // auth-server/src/auth/auth.config.ts
 import { betterAuth } from "better-auth";
-import { Pool } from "pg";
+import { PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient();
 
 export const auth = betterAuth({
-  database: new Pool({
-    connectionString: process.env.DATABASE_URL,
-  }),
+  database: prisma,
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: false, // Set to true in production
@@ -181,8 +181,7 @@ import { BetterAuthProvider } from '@better-auth/react';
 function App() {
   return (
     <BetterAuthProvider
-      domain="your-app.better-auth.com"
-      clientId={process.env.BETTER_AUTH_CLIENT_ID}
+      authServerUrl={process.env.REACT_APP_AUTH_SERVER_URL}
     >
       <YourApp />
     </BetterAuthProvider>
@@ -1104,14 +1103,25 @@ app.get('/health', (req, res) => {
 });
 ```
 
-**API Server (Render - existing)**:
+# API Server (Render - existing)
 ```python
 # backend/src/main.py
+from datetime import datetime
+
 @app.get("/health")
 async def health_check():
+    db_connected = False
+    try:
+        # Simulate a database connection check (replace with actual DB check in implementation)
+        # For example: await database.check_connection()
+        db_connected = True
+    except Exception:
+        db_connected = False
+
     return {
         "status": "healthy",
         "service": "api-server",
+        "database": "connected" if db_connected else "disconnected",
         "timestamp": datetime.utcnow().isoformat()
     }
 ```
