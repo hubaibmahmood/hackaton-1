@@ -36,11 +36,14 @@
   font-size: 1.1em;
 }
 
+/* Dark theme - More specific selectors */
+html[data-theme='dark'] .selection-menu,
 [data-theme='dark'] .selection-menu {
   background: var(--ifm-color-emphasis-200);
   border-color: var(--ifm-color-emphasis-400);
 }
 
+html[data-theme='dark'] .selection-menu-button:hover,
 [data-theme='dark'] .selection-menu-button:hover {
   background: var(--ifm-color-emphasis-300);
 }
