@@ -41,7 +41,7 @@ class RetrievalService:
             limit = settings.top_k_results
         if similarity_threshold is None:
             # Optimization: Slightly higher default threshold for precision
-            similarity_threshold = 0.7
+            similarity_threshold = 0.5
 
         try:
             results = qdrant_db.search(
