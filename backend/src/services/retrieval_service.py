@@ -1,14 +1,14 @@
 """Retrieval service for Qdrant vector search with enriched metadata."""
+
+import hashlib
+import json
 import logging
+from functools import lru_cache
 from typing import Optional
 
 from src.config import settings
 from src.database.qdrant import qdrant_db
 from src.models.content import SourceCitation
-
-from functools import lru_cache
-import hashlib
-import json
 
 logger = logging.getLogger(__name__)
 
@@ -19,7 +19,7 @@ class RetrievalService:
     @lru_cache(maxsize=1000)
     def _get_cached_search(self, query_hash: str) -> list[dict]:
         """Simple LRU cache for search results (placeholder for Redis)."""
-        return [] # Real implementation would return cached value if found
+        return []  # Real implementation would return cached value if found
 
     def search_by_embedding(
         self,
@@ -41,7 +41,7 @@ class RetrievalService:
             limit = settings.top_k_results
         if similarity_threshold is None:
             # Optimization: Slightly higher default threshold for precision
-            similarity_threshold = 0.75 
+            similarity_threshold = 0.7
 
         try:
             results = qdrant_db.search(
@@ -59,9 +59,7 @@ class RetrievalService:
             logger.error(f"Search failed: {e}")
             return []
 
-    def enrich_results_with_metadata(
-        self, results: list[dict]
-    ) -> list[dict]:
+    def enrich_results_with_metadata(self, results: list[dict]) -> list[dict]:
         """Enrich search results with formatted metadata and citations.
 
         Args:
@@ -92,15 +90,17 @@ class RetrievalService:
                 citation_url=citation_url,
             )
 
-            enriched_results.append({
-                "id": result.get("id"),
-                "score": result.get("score", 0.0),
-                "text": text,
-                "citation": citation.model_dump(),
-                "citation_text": citation_text,
-                "citation_url": citation_url,
-                "metadata": payload,
-            })
+            enriched_results.append(
+                {
+                    "id": result.get("id"),
+                    "score": result.get("score", 0.0),
+                    "text": text,
+                    "citation": citation.model_dump(),
+                    "citation_text": citation_text,
+                    "citation_url": citation_url,
+                    "metadata": payload,
+                }
+            )
 
         logger.debug(f"Enriched {len(enriched_results)} results with metadata")
         return enriched_results
