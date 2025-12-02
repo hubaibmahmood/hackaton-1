@@ -65,7 +65,9 @@ export class ChatService {
     });
 
     if (!response.ok) {
-      const error = await response.json().catch(() => ({ detail: 'Unknown error' }));
+      const error = await response
+        .json()
+        .catch(() => ({ detail: 'Unknown error' }));
       throw new Error(error.detail || `HTTP ${response.status}`);
     }
 
@@ -75,7 +77,9 @@ export class ChatService {
   /**
    * Send a chat message with streaming (Server-Sent Events)
    */
-  async *sendMessageStreaming(request: ChatRequest): AsyncGenerator<StreamEvent, void, unknown> {
+  async *sendMessageStreaming(
+    request: ChatRequest,
+  ): AsyncGenerator<StreamEvent, void, unknown> {
     const response = await fetch(`${this.apiUrl}/stream`, {
       method: 'POST',
       credentials: 'include', // Include cookies for session management
@@ -86,7 +90,9 @@ export class ChatService {
     });
 
     if (!response.ok) {
-      const error = await response.json().catch(() => ({ detail: 'Unknown error' }));
+      const error = await response
+        .json()
+        .catch(() => ({ detail: 'Unknown error' }));
       throw new Error(error.detail || `HTTP ${response.status}`);
     }
 
@@ -146,6 +152,6 @@ export class ChatService {
 // Default instance
 export const chatService = new ChatService(
   process.env.NODE_ENV === 'production'
-    ? 'https://your-render-backend.onrender.com/api/chat'
-    : 'http://localhost:8000/api/chat'
+    ? 'https://rag-chatbot-backend-21qb.onrender.com/api/chat'
+    : 'http://localhost:8000/api/chat',
 );
