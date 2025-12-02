@@ -1,0 +1,624 @@
+openapi: 3.0.3
+info:
+  title: API Server (Profile & Personalization)
+  version: 1.0.0
+  description: |
+    **API Server** - Python/FastAPI backend deployed on Render.
+
+    Handles profile management and content personalization:
+    - User profile CRUD operations
+    - Background information management (programming languages, frameworks, hardware platforms)
+    - Derived experience level calculation (Beginner/Intermediate/Advanced)
+    - Content variant selection based on experience level
+    - Tab preference persistence (Original vs Personalized)
+
+    **Architecture**: Microservices system with two backends:
+    - **Auth Server** (separate): Authentication with better-auth.com → Vercel (Node.js)
+    - **API Server** (THIS API): Profile & personalization → Render (FastAPI)
+
+    **Database**: Shared Neon PostgreSQL
+    - Auth Server manages: `users`, `user_sessions` tables
+    - API Server manages: `user_profiles`, `tab_preferences` tables
+
+    **Authentication**: All endpoints require JWT token issued by Auth Server.
+    API Server validates JWT locally using shared secret (no Auth Server call needed).
+  contact:
+    name: API Support
+    email: support@example.com
+
+servers:
+  - url: http://localhost:8000/api/v1
+    description: Local development (API Server)
+  - url: https://api-yourbook.onrender.com/api/v1
+    description: Production (Render deployment)
+
+tags:
+  - name: Profile
+    description: User profile and background management
+  - name: Options
+    description: Predefined option lists for background forms
+
+paths:
+  /profile:
+    get:
+      tags:
+        - Profile
+      summary: Get current user's profile
+      description: |
+        Retrieves complete profile including background information and cached experience level.
+        **Requirement**: FR-004, FR-015
+        **Performance (NFR-007)**: < 100ms response time
+      operationId: getProfile
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Profile retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+              example:
+                userId: "550e8400-e29b-41d4-a716-446655440000"
+                email: "alice@example.com"
+                programmingLanguages: ["Python", "C++"]
+                frameworks: ["ROS 2", "PyTorch"]
+                softwareExperienceYears: 3
+                roboticsPlatforms: ["Arduino", "Raspberry Pi"]
+                sensorsActuators: ["LiDAR", "IMU"]
+                hardwareExperienceYears: 2
+                derivedExperienceLevel: "Intermediate"
+                createdAt: "2025-12-01T10:00:00Z"
+                updatedAt: "2025-12-02T14:30:00Z"
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: "UNAUTHORIZED"
+                message: "Authentication required"
+        '404':
+          description: Profile not found (edge case - user exists but profile missing)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: "NOT_FOUND"
+                message: "User profile not found"
+
+    put:
+      tags:
+        - Profile
+      summary: Update user profile and background
+      description: |
+        Updates user's background information and re-calculates derived experience level.
+        Triggers content re-personalization based on new experience level.
+
+        **Success Criteria (SC-006)**: < 5 seconds to re-personalized content
+        **Performance (NFR-006)**: Profile update + experience recalculation < 2 seconds
+        **User Feedback (FR-018)**: Returns confirmation message on successful update
+        **Requirement**: FR-011, FR-012, FR-015
+      operationId: updateProfile
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProfileUpdateRequest'
+            examples:
+              partialUpdate:
+                summary: Update only programming languages
+                value:
+                  programmingLanguages: ["Python", "C++", "Rust"]
+              fullUpdate:
+                summary: Complete background update
+                value:
+                  programmingLanguages: ["Python", "C++", "JavaScript"]
+                  frameworks: ["ROS 2", "PyTorch", "React"]
+                  softwareExperienceYears: 5
+                  roboticsPlatforms: ["Custom Robot", "Arduino"]
+                  sensorsActuators: ["LiDAR", "RGB-D Camera", "IMU"]
+                  hardwareExperienceYears: 4
+      responses:
+        '200':
+          description: Profile updated successfully with new experience level
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - profile
+                  - message
+                  - experienceLevelChanged
+                properties:
+                  profile:
+                    $ref: '#/components/schemas/UserProfile'
+                  message:
+                    type: string
+                    description: User-facing confirmation message (FR-018)
+                    example: "Your profile has been updated successfully. Content personalization refreshed."
+                  experienceLevelChanged:
+                    type: boolean
+                    description: Indicates if derived experience level changed (triggers content refresh)
+                    example: true
+                  previousExperienceLevel:
+                    type: string
+                    enum: [Beginner, Intermediate, Advanced]
+                    description: Previous experience level (only present if changed)
+                    example: "Intermediate"
+              examples:
+                levelChanged:
+                  summary: Experience level increased from Intermediate to Advanced
+                  value:
+                    profile:
+                      userId: "550e8400-e29b-41d4-a716-446655440000"
+                      email: "alice@example.com"
+                      programmingLanguages: ["Python", "C++", "Rust"]
+                      frameworks: ["ROS 2", "PyTorch", "TensorFlow"]
+                      softwareExperienceYears: 6
+                      roboticsPlatforms: ["Custom Robot"]
+                      sensorsActuators: ["LiDAR", "IMU"]
+                      hardwareExperienceYears: 5
+                      derivedExperienceLevel: "Advanced"
+                      updatedAt: "2025-12-02T15:45:00Z"
+                    message: "Your profile has been updated successfully. Your experience level has been upgraded to Advanced."
+                    experienceLevelChanged: true
+                    previousExperienceLevel: "Intermediate"
+                noLevelChange:
+                  summary: Background updated but experience level unchanged
+                  value:
+                    profile:
+                      userId: "550e8400-e29b-41d4-a716-446655440000"
+                      email: "alice@example.com"
+                      programmingLanguages: ["Python", "C++", "JavaScript"]
+                      frameworks: ["ROS 2", "PyTorch"]
+                      softwareExperienceYears: 3
+                      roboticsPlatforms: ["Arduino"]
+                      sensorsActuators: ["LiDAR"]
+                      hardwareExperienceYears: 2
+                      derivedExperienceLevel: "Intermediate"
+                      updatedAt: "2025-12-02T15:45:00Z"
+                    message: "Your profile has been updated successfully."
+                    experienceLevelChanged: false
+        '400':
+          description: Invalid profile data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                invalidYears:
+                  summary: Experience years out of valid range
+                  value:
+                    error: "VALIDATION_ERROR"
+                    message: "Experience years must be between 0 and 50"
+                    details:
+                      field: "softwareExperienceYears"
+                      value: 100
+                emptyArray:
+                  summary: Empty array when at least one item expected
+                  value:
+                    error: "VALIDATION_ERROR"
+                    message: "At least one programming language or framework must be selected for non-zero software experience"
+                    details:
+                      field: "programmingLanguages"
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Profile not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /profile/options:
+    get:
+      tags:
+        - Options
+      summary: Get predefined options for background forms
+      description: |
+        Returns curated lists of predefined options for all background fields.
+        Used to populate multi-select forms with consistent, matchable values.
+
+        **Requirement**: FR-016 (predefined options with "Other" field support)
+        **Cache**: Response is cacheable (immutable lists, infrequent updates)
+      operationId: getProfileOptions
+      responses:
+        '200':
+          description: Predefined options retrieved successfully
+          headers:
+            Cache-Control:
+              description: Client can cache for 24 hours
+              schema:
+                type: string
+                example: "public, max-age=86400"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfileOptions'
+              example:
+                programmingLanguages:
+                  - Python
+                  - C++
+                  - Rust
+                  - JavaScript
+                  - MATLAB
+                  - Other
+                frameworks:
+                  - ROS 2
+                  - PyTorch
+                  - TensorFlow
+                  - OpenCV
+                  - Gymnasium
+                  - MuJoCo
+                  - Other
+                roboticsPlatforms:
+                  - Custom Robot
+                  - Unitree Go2
+                  - Boston Dynamics Spot
+                  - Arduino
+                  - Raspberry Pi
+                  - NVIDIA Jetson
+                  - Other
+                sensorsActuators:
+                  - LiDAR
+                  - RGB-D Camera
+                  - IMU
+                  - Force/Torque Sensor
+                  - BLDC Motor
+                  - Servo Motor
+                  - Gripper/End-Effector
+                  - Other
+
+  /profile/tab-preference:
+    get:
+      tags:
+        - Profile
+      summary: Get user's tab preference
+      description: |
+        Retrieves user's preferred content tab (Original or Personalized).
+        **Requirement**: FR-005, FR-006
+        **Performance**: < 50ms response time (frequently called)
+      operationId: getTabPreference
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Tab preference retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TabPreference'
+              example:
+                preferredTab: "Personalized"
+                lastSwitchedAt: "2025-12-02T10:30:00Z"
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    put:
+      tags:
+        - Profile
+      summary: Update user's tab preference
+      description: |
+        Stores user's preferred content tab for persistence across sessions.
+        **Success Criteria (SC-004)**: Tab switch < 500ms without page reload
+        **Requirement**: FR-005, FR-006
+      operationId: updateTabPreference
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - preferredTab
+              properties:
+                preferredTab:
+                  type: string
+                  enum:
+                    - Original
+                    - Personalized
+                  description: Preferred content tab
+                  example: Personalized
+      responses:
+        '200':
+          description: Tab preference updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TabPreference'
+              example:
+                preferredTab: "Personalized"
+                lastSwitchedAt: "2025-12-02T14:45:00Z"
+        '400':
+          description: Invalid tab name
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: "VALIDATION_ERROR"
+                message: "Preferred tab must be 'Original' or 'Personalized'"
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token in Authorization header
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: session_token
+      description: Session token stored in httpOnly cookie
+
+  schemas:
+    UserProfile:
+      type: object
+      required:
+        - userId
+        - email
+        - softwareExperienceYears
+        - hardwareExperienceYears
+        - derivedExperienceLevel
+        - createdAt
+        - updatedAt
+      properties:
+        userId:
+          type: string
+          format: uuid
+          description: Unique user identifier
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        email:
+          type: string
+          format: email
+          description: User email address
+          example: alice@example.com
+        programmingLanguages:
+          type: array
+          items:
+            type: string
+          description: Selected programming languages (from predefined list + custom)
+          example: ["Python", "C++"]
+          default: []
+        frameworks:
+          type: array
+          items:
+            type: string
+          description: Selected frameworks/libraries
+          example: ["ROS 2", "PyTorch"]
+          default: []
+        softwareExperienceYears:
+          type: integer
+          minimum: 0
+          maximum: 50
+          description: Years of software development experience
+          example: 3
+        roboticsPlatforms:
+          type: array
+          items:
+            type: string
+          description: Selected robotics platforms
+          example: ["Arduino", "Raspberry Pi"]
+          default: []
+        sensorsActuators:
+          type: array
+          items:
+            type: string
+          description: Selected sensors/actuators
+          example: ["LiDAR", "IMU"]
+          default: []
+        hardwareExperienceYears:
+          type: integer
+          minimum: 0
+          maximum: 50
+          description: Years of hardware/robotics experience
+          example: 2
+        derivedExperienceLevel:
+          type: string
+          enum:
+            - Beginner
+            - Intermediate
+            - Advanced
+          description: |
+            Cached experience level calculated from background:
+            - Beginner: 0-2 years (conservative minimum of software/hardware)
+            - Intermediate: 2-5 years
+            - Advanced: 5+ years
+          example: Intermediate
+        createdAt:
+          type: string
+          format: date-time
+          description: Profile creation timestamp
+          example: "2025-12-01T10:00:00Z"
+        updatedAt:
+          type: string
+          format: date-time
+          description: Last profile update timestamp
+          example: "2025-12-02T14:30:00Z"
+
+    ProfileUpdateRequest:
+      type: object
+      description: |
+        Partial or complete profile update. All fields are optional.
+        Omitted fields retain their current values.
+      properties:
+        programmingLanguages:
+          type: array
+          items:
+            type: string
+          description: Updated programming languages list
+          example: ["Python", "C++", "Rust"]
+        frameworks:
+          type: array
+          items:
+            type: string
+          description: Updated frameworks list
+          example: ["ROS 2", "PyTorch", "TensorFlow"]
+        softwareExperienceYears:
+          type: integer
+          minimum: 0
+          maximum: 50
+          description: Updated software experience years
+          example: 5
+        roboticsPlatforms:
+          type: array
+          items:
+            type: string
+          description: Updated robotics platforms list
+          example: ["Custom Robot", "Arduino"]
+        sensorsActuators:
+          type: array
+          items:
+            type: string
+          description: Updated sensors/actuators list
+          example: ["LiDAR", "RGB-D Camera"]
+        hardwareExperienceYears:
+          type: integer
+          minimum: 0
+          maximum: 50
+          description: Updated hardware experience years
+          example: 4
+
+    ProfileOptions:
+      type: object
+      required:
+        - programmingLanguages
+        - frameworks
+        - roboticsPlatforms
+        - sensorsActuators
+      description: |
+        Predefined options for all background form fields.
+        Each array includes curated options plus "Other" for custom input.
+      properties:
+        programmingLanguages:
+          type: array
+          items:
+            type: string
+          description: Curated list of programming languages
+          example:
+            - Python
+            - C++
+            - Rust
+            - JavaScript
+            - MATLAB
+            - Go
+            - Java
+            - Other
+        frameworks:
+          type: array
+          items:
+            type: string
+          description: Curated list of frameworks and libraries
+          example:
+            - ROS 2
+            - PyTorch
+            - TensorFlow
+            - OpenCV
+            - Gymnasium
+            - MuJoCo
+            - Isaac Sim
+            - Other
+        roboticsPlatforms:
+          type: array
+          items:
+            type: string
+          description: Curated list of robotics platforms
+          example:
+            - Custom Robot
+            - Unitree Go2
+            - Boston Dynamics Spot
+            - Arduino
+            - Raspberry Pi
+            - NVIDIA Jetson
+            - Other
+        sensorsActuators:
+          type: array
+          items:
+            type: string
+          description: Curated list of sensors and actuators
+          example:
+            - LiDAR
+            - RGB-D Camera
+            - IMU
+            - Force/Torque Sensor
+            - BLDC Motor
+            - Servo Motor
+            - Gripper/End-Effector
+            - Ultrasonic Sensor
+            - Other
+
+    TabPreference:
+      type: object
+      required:
+        - preferredTab
+      properties:
+        preferredTab:
+          type: string
+          enum:
+            - Original
+            - Personalized
+          description: User's preferred content tab
+          example: Personalized
+        lastSwitchedAt:
+          type: string
+          format: date-time
+          description: Timestamp of last tab switch
+          example: "2025-12-02T10:30:00Z"
+
+    ErrorResponse:
+      type: object
+      required:
+        - error
+        - message
+      properties:
+        error:
+          type: string
+          enum:
+            - VALIDATION_ERROR
+            - UNAUTHORIZED
+            - NOT_FOUND
+            - INTERNAL_ERROR
+          description: Error type code
+          example: VALIDATION_ERROR
+        message:
+          type: string
+          description: Human-readable error message
+          example: "Experience years must be between 0 and 50"
+        details:
+          type: object
+          additionalProperties: true
+          description: Additional error context
+          example:
+            field: "softwareExperienceYears"
+            value: 100
+
+security:
+  - bearerAuth: []
+  - cookieAuth: []

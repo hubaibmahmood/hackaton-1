@@ -1,0 +1,280 @@
+openapi: 3.0.3
+info:
+  title: Common Schemas
+  version: 1.0.0
+  description: |
+    Shared schema definitions used across authentication and profile management APIs.
+    These schemas ensure consistency in data structures, validation rules, and error handling.
+
+components:
+  schemas:
+    # Experience Level Taxonomy
+    ExperienceLevel:
+      type: string
+      enum:
+        - Beginner
+        - Intermediate
+        - Advanced
+      description: |
+        User experience level derived from background information:
+        - **Beginner**: 0-2 years experience (either software or hardware)
+        - **Intermediate**: 2-5 years experience
+        - **Advanced**: 5+ years experience
+
+        **Matching Logic (FR-006)**: Uses conservative approach - minimum of software
+        and hardware experience levels to prevent overwhelming users with knowledge gaps.
+      example: Intermediate
+
+    # Standard Error Response
+    ErrorResponse:
+      type: object
+      required:
+        - error
+        - message
+      properties:
+        error:
+          type: string
+          enum:
+            - VALIDATION_ERROR      # Invalid input data (400)
+            - UNAUTHORIZED          # Authentication required or failed (401)
+            - FORBIDDEN             # Insufficient permissions (403)
+            - NOT_FOUND             # Resource not found (404)
+            - CONFLICT              # Resource conflict (e.g., duplicate email) (409)
+            - RATE_LIMIT_EXCEEDED   # Too many requests (429)
+            - SERVICE_UNAVAILABLE   # External service down (503)
+            - INTERNAL_ERROR        # Server error (500)
+          description: Error type code
+          example: VALIDATION_ERROR
+        message:
+          type: string
+          minLength: 1
+          maxLength: 500
+          description: Human-readable error message for end users
+          example: "Password must contain at least 8 characters with uppercase, lowercase, and number"
+        details:
+          type: object
+          additionalProperties: true
+          description: |
+            Additional structured error context for debugging and client handling.
+            May include field names, constraint violations, retry information, etc.
+          example:
+            field: "password"
+            constraint: "NFR-001"
+            retryAfter: 3600
+
+    # Background Information Arrays (Multi-valued Fields)
+    ProgrammingLanguagesArray:
+      type: array
+      items:
+        type: string
+        minLength: 1
+        maxLength: 100
+      description: |
+        Programming languages from predefined list or custom via "Other" (FR-016).
+        Stored as JSONB array in PostgreSQL for efficient querying with GIN index.
+      example: ["Python", "C++", "Rust"]
+      default: []
+
+    FrameworksArray:
+      type: array
+      items:
+        type: string
+        minLength: 1
+        maxLength: 100
+      description: |
+        Frameworks and libraries from predefined list or custom via "Other" (FR-016).
+        Examples: ROS 2, PyTorch, TensorFlow, OpenCV
+      example: ["ROS 2", "PyTorch"]
+      default: []
+
+    RoboticsPlatformsArray:
+      type: array
+      items:
+        type: string
+        minLength: 1
+        maxLength: 100
+      description: |
+        Robotics platforms from predefined list or custom via "Other" (FR-016).
+        Examples: Custom Robot, Unitree Go2, Arduino, Raspberry Pi
+      example: ["Arduino", "Raspberry Pi"]
+      default: []
+
+    SensorsActuatorsArray:
+      type: array
+      items:
+        type: string
+        minLength: 1
+        maxLength: 100
+      description: |
+        Sensors and actuators from predefined list or custom via "Other" (FR-016).
+        Examples: LiDAR, IMU, RGB-D Camera, BLDC Motor
+      example: ["LiDAR", "IMU"]
+      default: []
+
+    # Experience Years (Software and Hardware)
+    ExperienceYears:
+      type: integer
+      minimum: 0
+      maximum: 50
+      description: |
+        Years of experience in software development or hardware/robotics.
+        Used to calculate derived experience level:
+        - 0-2 years → Beginner
+        - 2-5 years → Intermediate
+        - 5+ years → Advanced
+      example: 3
+
+    # User Identifier
+    UserId:
+      type: string
+      format: uuid
+      description: Unique user identifier (UUID v4)
+      example: "550e8400-e29b-41d4-a716-446655440000"
+
+    # Email Address
+    Email:
+      type: string
+      format: email
+      minLength: 3
+      maxLength: 255
+      description: User email address (unique identifier, validated per RFC 5322)
+      example: "alice@example.com"
+
+    # Password (Request Only - Never in Response)
+    Password:
+      type: string
+      format: password
+      minLength: 8
+      maxLength: 128
+      description: |
+        User password meeting security requirements (NFR-001):
+        - Minimum 8 characters
+        - At least one uppercase letter [A-Z]
+        - At least one lowercase letter [a-z]
+        - At least one number [0-9]
+
+        **Security**: Hashed with bcrypt (cost factor 12) before storage.
+        Never returned in API responses.
+      example: "SecurePass123"
+
+    # JWT Session Token
+    SessionToken:
+      type: string
+      format: jwt
+      description: |
+        JWT session token with 7-day expiration (FR-014).
+        Stored in httpOnly, secure, SameSite=Strict cookie.
+        Contains user ID and expiration timestamp.
+      example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI1NTBlODQwMC1lMjliLTQxZDQtYTcxNi00NDY2NTU0NDAwMDAiLCJleHAiOjE3MzM3NDU0MDB9.xyz"
+
+    # ISO 8601 Timestamp
+    Timestamp:
+      type: string
+      format: date-time
+      description: ISO 8601 timestamp in UTC (e.g., "2025-12-02T14:30:00Z")
+      example: "2025-12-02T14:30:00Z"
+
+    # Tab Preference
+    TabPreference:
+      type: string
+      enum:
+        - Original
+        - Personalized
+      description: |
+        User's preferred content tab (FR-005, FR-006):
+        - **Original**: Universal content for all users
+        - **Personalized**: Content tailored to user's experience level
+
+        **Performance (SC-004)**: Tab switch < 500ms without page reload
+      example: Personalized
+
+  # Reusable Response Headers
+  headers:
+    SessionCookie:
+      description: Session cookie with httpOnly, secure, SameSite=Strict flags
+      schema:
+        type: string
+        example: "session_token=abc123...; HttpOnly; Secure; SameSite=Strict; Max-Age=604800"
+
+    CacheControl:
+      description: Cache-Control header for immutable or frequently-changing resources
+      schema:
+        type: string
+        example: "public, max-age=86400"
+
+    RetryAfter:
+      description: Seconds to wait before retrying (for rate limiting or service unavailability)
+      schema:
+        type: integer
+        example: 3600
+
+  # Reusable Parameters
+  parameters:
+    UserId:
+      name: userId
+      in: path
+      required: true
+      description: Unique user identifier (UUID)
+      schema:
+        $ref: '#/components/schemas/UserId'
+
+  # Security Schemes
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: |
+        JWT token in Authorization header.
+        Format: `Authorization: Bearer <token>`
+        Used for API requests from frontend (alternative to cookie auth).
+
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: session_token
+      description: |
+        Session token stored in httpOnly cookie.
+        Automatically sent by browser on same-origin requests.
+        Preferred method for web applications (more secure than localStorage).
+
+  # Reusable Examples
+  examples:
+    ErrorValidation:
+      summary: Validation error example
+      value:
+        error: "VALIDATION_ERROR"
+        message: "Password must contain at least 8 characters with uppercase, lowercase, and number"
+        details:
+          field: "password"
+          constraint: "NFR-001"
+
+    ErrorUnauthorized:
+      summary: Authentication required
+      value:
+        error: "UNAUTHORIZED"
+        message: "Authentication required. Please sign in."
+
+    ErrorNotFound:
+      summary: Resource not found
+      value:
+        error: "NOT_FOUND"
+        message: "The requested resource was not found"
+
+    ErrorRateLimit:
+      summary: Rate limit exceeded
+      value:
+        error: "RATE_LIMIT_EXCEEDED"
+        message: "Too many failed login attempts. Please try again later."
+        details:
+          retryAfter: 3600
+          limit: "5 attempts per hour"
+
+    ErrorServiceUnavailable:
+      summary: External service unavailable
+      value:
+        error: "SERVICE_UNAVAILABLE"
+        message: "Authentication service is temporarily unavailable. Please try again later."
+        details:
+          service: "better-auth.com"
+          retryAfter: 60
