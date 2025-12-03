@@ -1,0 +1,76 @@
+.signupForm {
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.formGroup {
+  margin-bottom: 1.5rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: var(--ifm-font-color-base);
+}
+
+.input {
+  padding: 0.75rem;
+  font-size: 1rem;
+  border: 1px solid var(--ifm-color-emphasis-300);
+  border-radius: 6px;
+  background-color: var(--ifm-background-color);
+  color: var(--ifm-font-color-base);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--ifm-color-primary);
+  box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+}
+
+.input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background-color: var(--ifm-color-emphasis-100);
+}
+
+.inputError {
+  border-color: var(--ifm-color-danger);
+}
+
+.inputError:focus {
+  box-shadow: 0 0 0 3px rgba(245, 101, 101, 0.1);
+}
+
+.fieldError {
+  font-size: 0.875rem;
+  color: var(--ifm-color-danger);
+  margin-top: 0.25rem;
+  display: block;
+}
+
+.hint {
+  font-size: 0.75rem;
+  color: var(--ifm-color-emphasis-600);
+  margin-top: 0.25rem;
+  display: block;
+}
+
+/* Dark mode adjustments */
+[data-theme='dark'] .input {
+  border-color: var(--ifm-color-emphasis-400);
+}
+
+[data-theme='dark'] .input:focus {
+  border-color: var(--ifm-color-primary-light);
+  box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2);
+}
+
+[data-theme='dark'] .inputError {
+  border-color: var(--ifm-color-danger-dark);
+}

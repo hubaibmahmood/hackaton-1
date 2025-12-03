@@ -91,6 +91,8 @@ async def health_check():
 
 # Register API routes
 from src.api import chat, index
+from src.profiles.router import router as profiles_router
 
 app.include_router(chat.router, prefix="/api/chat", tags=["chat"])
 app.include_router(index.router, prefix="/api/index", tags=["index"])
+app.include_router(profiles_router, prefix="/api", tags=["profiles"])

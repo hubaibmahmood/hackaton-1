@@ -35,6 +35,30 @@ export interface CreateProfileRequest {
   hardwareExperienceYears: number;
 }
 
+// Backend API types (snake_case naming)
+export interface ProfileCreateRequest {
+  user_id: string;
+  programming_languages: string[];
+  frameworks: string[];
+  software_experience_years: number;
+  robotics_platforms: string[];
+  sensors_actuators: string[];
+  hardware_experience_years: number;
+}
+
+export interface ProfileResponse {
+  user_id: string;
+  programming_languages: string[];
+  frameworks: string[];
+  software_experience_years: number;
+  robotics_platforms: string[];
+  sensors_actuators: string[];
+  hardware_experience_years: number;
+  derived_experience_level: ExperienceLevel;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface UpdateProfileRequest {
   programmingLanguages?: string[];
   frameworks?: string[];

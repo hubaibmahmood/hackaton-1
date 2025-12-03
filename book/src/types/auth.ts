@@ -15,6 +15,16 @@ export interface SignupRequest {
   password: string;
 }
 
+export interface SignupResponse {
+  user: User;
+  session: {
+    id: string;
+    userId: string;
+    expiresAt: string;
+    token: string;
+  };
+}
+
 export interface LoginRequest {
   email: string;
   password: string;
