@@ -28,7 +28,8 @@ router.get('/me', async (req, res, next) => {
       email: session.user.email,
       emailVerified: session.user.emailVerified,
       createdAt: session.user.createdAt,
-      id: session.id, // Include the session ID here
+      // session.session contains the session details
+      sessionId: session.session.id,
     });
   } catch (error) {
     logger.error('Error fetching current user', { error });
