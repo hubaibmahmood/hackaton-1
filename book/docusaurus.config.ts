@@ -30,6 +30,25 @@ const config: Config = {
         },
       };
     },
+    // Custom plugin to inject environment variables via Webpack DefinePlugin
+    function (context, options) {
+      return {
+        name: 'docusaurus-environment-plugin',
+        configureWebpack(config, isServer) {
+          if (!isServer) {
+            // Only apply to client-side build
+            const webpack = require('webpack');
+            config.plugins.push(
+              new webpack.DefinePlugin({
+                'process.env.DOCUSAURUS_AUTH_SERVER_URL': JSON.stringify(process.env.DOCUSAURUS_AUTH_SERVER_URL),
+                // Add other client-side environment variables here if needed
+              })
+            );
+          }
+          return config;
+        },
+      };
+    },
   ],
 
   // Set the production url of your site here
