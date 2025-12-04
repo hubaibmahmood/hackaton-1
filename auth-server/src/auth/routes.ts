@@ -23,7 +23,6 @@ router.get('/me', async (req, res, next) => {
     if (!session) {
       logger.warn('No active session found for /me endpoint', {
         cookieHeader: req.headers.cookie,
-        sessionId: session?.session?.id // Log session ID if available
       });
       return res.status(401).json({
         error: 'Unauthorized',
