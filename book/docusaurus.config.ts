@@ -2,6 +2,7 @@ import {themes as prismThemes} from 'prism-react-renderer';
 import type {Config} from '@docusaurus/types';
 import type * as Preset from '@docusaurus/preset-classic';
 import path from 'path';
+import webpack from 'webpack'; // Import webpack
 
 // This runs in Node.js - Don't use client-side code here (browser APIs, JSX...)
 
@@ -18,26 +19,10 @@ const config: Config = {
   plugins: [
     function (context, options) {
       return {
-        name: 'custom-alias-plugin',
-        configureWebpack(config, isServer) {
-          return {
-            resolve: {
-              alias: {
-                '@': path.resolve(__dirname, './src'),
-              },
-            },
-          };
-        },
-      };
-    },
-    // Custom plugin to inject environment variables via Webpack DefinePlugin
-    function (context, options) {
-      return {
-        name: 'docusaurus-environment-plugin',
+        name: 'custom-webpack-plugin', // Renamed for clarity as it does more than just aliases
         configureWebpack(config, isServer) {
           if (!isServer) {
-            // Only apply to client-side build
-            const webpack = require('webpack');
+            // Add DefinePlugin for client-side environment variables
             config.plugins.push(
               new webpack.DefinePlugin({
                 'process.env.DOCUSAURUS_AUTH_SERVER_URL': JSON.stringify(process.env.DOCUSAURUS_AUTH_SERVER_URL),
@@ -45,7 +30,16 @@ const config: Config = {
               })
             );
           }
-          return config;
+
+          // Existing alias configuration
+          return {
+            resolve: {
+              alias: {
+                '@': path.resolve(__dirname, './src'),
+              },
+            },
+            plugins: config.plugins, // Ensure existing plugins are maintained
+          };
         },
       };
     },
