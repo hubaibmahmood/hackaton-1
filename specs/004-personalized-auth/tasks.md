@@ -50,41 +50,41 @@ This feature uses microservices architecture:
 - [X] T009 Create Alembic migration file structure in backend/src/database/migrations/001_create_auth_tables.py
 - [X] T010 Add users and user_sessions table definitions to migration with indexes
 - [X] T011 Add user_profiles and tab_preferences table definitions to migration with JSONB indexes
-- [ ] T012 Run database migration to create all auth tables
-- [ ] T013 Create migration rollback script in backend/src/database/rollback_001.py
+- [X] T012 Run database migration to create all auth tables
+- [X] T013 Create migration rollback script in backend/src/database/rollback_001.py
 
 ### Database Configuration
 
-- [ ] T014 [P] Configure Neon PostgreSQL connection in auth-server/src/database/client.ts with Prisma and connection pooling
-- [ ] T015 [P] Configure Neon PostgreSQL connection in backend/src/database/init.py with psycopg pool (extend existing)
-- [ ] T016 Create Prisma schema for auth tables in auth-server/prisma/schema.prisma
-- [ ] T017 Generate Prisma Client in auth-server with npx prisma generate
-- [ ] T018 Add environment variable validation utility in auth-server/src/config/env.ts
+- [X] T014 [P] Configure Neon PostgreSQL connection in auth-server/src/database/client.ts with Prisma and connection pooling
+- [X] T015 [P] Configure Neon PostgreSQL connection in backend/src/database/init.py with psycopg pool (extend existing)
+- [X] T016 Create Prisma schema for auth tables in auth-server/prisma/schema.prisma
+- [X] T017 Generate Prisma Client in auth-server with npx prisma generate
+- [X] T018 Add environment variable validation utility in auth-server/src/config/env.ts
 
 ### Auth Server Setup
 
-- [ ] T019 [P] Setup better-auth configuration in auth-server/src/auth/auth.config.ts with email/password and JWT settings
-- [ ] T020 [P] Create Express server entry point in auth-server/src/index.ts with CORS and helmet middleware
-- [ ] T021 [P] Create auth routes handler in auth-server/src/auth/routes.ts
-- [ ] T022 [P] Create custom error classes in auth-server/src/utils/errors.ts (AuthError, ValidationError)
-- [ ] T023 [P] Add Express global error handler middleware in auth-server/src/middleware/errorHandler.ts
-- [ ] T024 [P] Setup structured logging utility in auth-server/src/utils/logger.ts with correlation IDs
+- [X] T019 [P] Setup better-auth configuration in auth-server/src/auth/auth.config.ts with email/password and JWT settings
+- [X] T020 [P] Create Express server entry point in auth-server/src/index.ts with CORS and helmet middleware
+- [X] T021 [P] Create auth routes handler in auth-server/src/auth/routes.ts
+- [X] T022 [P] Create custom error classes in auth-server/src/utils/errors.ts (AuthError, ValidationError)
+- [X] T023 [P] Add Express global error handler middleware in auth-server/src/middleware/errorHandler.ts
+- [X] T024 [P] Setup structured logging utility in auth-server/src/utils/logger.ts with correlation IDs
 
 ### API Server Auth Setup
 
-- [ ] T025 [P] Implement JWT validation middleware in backend/src/auth/dependencies.py using python-jose
-- [ ] T026 [P] Create custom error classes in backend/src/utils/errors.py (AuthenticationError, ValidationError)
-- [ ] T027 [P] Setup structured logging utility in backend/src/utils/logger.py with correlation IDs
+- [X] T025 [P] Implement JWT validation middleware in backend/src/auth/dependencies.py using python-jose
+- [X] T026 [P] Create custom error classes in backend/src/utils/errors.py (AuthenticationError, ValidationError)
+- [X] T027 [P] Setup structured logging utility in backend/src/utils/logger.py with correlation IDs
 
 ### Frontend Setup
 
-- [ ] T028 Create auth types in book/src/types/auth.ts (User, SignupRequest, LoginRequest, TokenResponse)
-- [ ] T029 Create profile types in book/src/types/profile.ts (UserProfile, ExperienceLevel, BackgroundOptions)
-- [ ] T030 Setup Axios client for auth-server in book/src/services/authClient.ts with base URL and interceptors
-- [ ] T031 Setup Axios client for API server in book/src/services/apiClient.ts with JWT token interceptor
-- [ ] T032 [P] Create LoadingSpinner component in book/src/components/common/LoadingSpinner.tsx
-- [ ] T033 [P] Create ErrorMessage component in book/src/components/common/ErrorMessage.tsx
-- [ ] T034 [P] Create Button component with loading state in book/src/components/common/Button.tsx
+- [X] T028 Create auth types in book/src/types/auth.ts (User, SignupRequest, LoginRequest, TokenResponse)
+- [X] T029 Create profile types in book/src/types/profile.ts (UserProfile, ExperienceLevel, BackgroundOptions)
+- [X] T030 Setup Axios client for auth-server in book/src/services/authClient.ts with base URL and interceptors
+- [X] T031 Setup Axios client for API server in book/src/services/apiClient.ts with JWT token interceptor
+- [X] T032 [P] Create LoadingSpinner component in book/src/components/common/LoadingSpinner.tsx
+- [X] T033 [P] Create ErrorMessage component in book/src/components/common/ErrorMessage.tsx
+- [X] T034 [P] Create Button component with loading state in book/src/components/common/Button.tsx
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -98,32 +98,32 @@ This feature uses microservices architecture:
 
 ### Backend Models & Logic
 
-- [ ] T035 [P] [US1] Create User Pydantic model in backend/src/auth/models.py with email and password validation
-- [ ] T036 [P] [US1] Create UserProfile Pydantic model in backend/src/profiles/models.py with experience field validation
-- [ ] T037 [P] [US1] Create BackgroundInfo Pydantic model in backend/src/profiles/models.py for JSONB arrays
-- [ ] T038 [US1] Implement experience level calculation function in backend/src/profiles/experience.py with conservative matching logic (returns Beginner/Intermediate/Advanced)
-- [ ] T039 [US1] Create profile service in backend/src/profiles/service.py with create_profile() and calculate_derived_level()
-- [ ] T040 [US1] Create profile router in backend/src/profiles/router.py with POST /api/profile endpoint
-- [ ] T041 [US1] Register profile router in backend/src/main.py FastAPI app
+- [X] T035 [P] [US1] Create User Pydantic model in backend/src/auth/models.py with email and password validation
+- [X] T036 [P] [US1] Create UserProfile Pydantic model in backend/src/profiles/models.py with experience field validation
+- [X] T037 [P] [US1] Create BackgroundInfo Pydantic model in backend/src/profiles/models.py for JSONB arrays
+- [X] T038 [US1] Implement experience level calculation function in backend/src/profiles/experience.py with conservative matching logic (returns Beginner/Intermediate/Advanced)
+- [X] T039 [US1] Create profile service in backend/src/profiles/service.py with create_profile() and calculate_derived_level()
+- [X] T040 [US1] Create profile router in backend/src/profiles/router.py with POST /api/profile endpoint
+- [X] T041 [US1] Register profile router in backend/src/main.py FastAPI app
 
 ### Auth Server Signup
 
-- [ ] T042 [US1] Implement POST /auth/signup route handler in auth-server/src/auth/routes.ts using better-auth library
-- [ ] T043 [US1] Add signup request validation in auth-server/src/auth/routes.ts (email format, password strength)
-- [ ] T044 [US1] Add signup error handling and responses in auth-server/src/auth/routes.ts
+- [X] T042 [US1] Implement POST /auth/signup route handler in auth-server/src/auth/routes.ts using better-auth library
+- [X] T043 [US1] Add signup request validation in auth-server/src/auth/routes.ts (email format, password strength)
+- [X] T044 [US1] Add signup error handling and responses in auth-server/src/auth/routes.ts
 
 ### Frontend Signup Flow
 
-- [ ] T045 [P] [US1] Create signup page in book/src/pages/signup.tsx with layout and navigation
-- [ ] T046 [P] [US1] Add predefined background options constants in book/src/constants/backgroundOptions.ts
-- [ ] T047 [P] [US1] Add Zod password validation schema in book/src/types/auth.ts
-- [ ] T048 [US1] Create SignupForm component in book/src/components/Auth/SignupForm.tsx with React Hook Form (email + password fields)
-- [ ] T049 [US1] Create BackgroundForm component in book/src/components/Auth/BackgroundForm.tsx with multi-select lists for languages, frameworks, platforms, sensors
-- [ ] T050 [US1] Implement authService.signup() in book/src/services/authService.ts calling POST /auth/signup
-- [ ] T051 [US1] Implement profileService.createProfile() in book/src/services/profileService.ts calling POST /api/profile
-- [ ] T052 [US1] Add form submission handler in SignupForm calling authService then profileService with error handling
-- [ ] T053 [US1] Add loading state and disabled submit button during signup processing in SignupForm
-- [ ] T054 [US1] Add error message display for signup failures in SignupForm using ErrorMessage component
+- [X] T045 [P] [US1] Create signup page in book/src/pages/signup.tsx with layout and navigation
+- [X] T046 [P] [US1] Add predefined background options constants in book/src/constants/backgroundOptions.ts
+- [X] T047 [P] [US1] Add Zod password validation schema in book/src/types/auth.ts
+- [X] T048 [US1] Create SignupForm component in book/src/components/Auth/SignupForm.tsx with React Hook Form (email + password fields)
+- [X] T049 [US1] Create BackgroundForm component in book/src/components/Auth/BackgroundForm.tsx with multi-select lists for languages, frameworks, platforms, sensors
+- [X] T050 [US1] Implement authService.signup() in book/src/services/authService.ts calling POST /auth/signup
+- [X] T051 [US1] Implement profileService.createProfile() in book/src/services/profileService.ts calling POST /api/profile
+- [X] T052 [US1] Add form submission handler in SignupForm calling authService then profileService with error handling
+- [X] T053 [US1] Add loading state and disabled submit button during signup processing in SignupForm
+- [X] T054 [US1] Add error message display for signup failures in SignupForm using ErrorMessage component
 
 **Checkpoint**: At this point, User Story 1 should be fully functional - users can sign up, provide background, and have profiles created with derived experience levels
 
@@ -137,29 +137,29 @@ This feature uses microservices architecture:
 
 ### Auth Server Sign In
 
-- [ ] T055 [P] [US2] Implement POST /auth/signin route in auth-server/src/auth/routes.ts using better-auth
-- [ ] T056 [P] [US2] Implement POST /auth/signout route in auth-server/src/auth/routes.ts
-- [ ] T057 [P] [US2] Add httpOnly cookie configuration for JWT tokens in auth-server/src/auth/auth.config.ts
-- [ ] T058 [P] [US2] Implement POST /auth/refresh route in auth-server/src/auth/routes.ts for token refresh
+- [X] T055 [P] [US2] Implement POST /auth/signin route in auth-server/src/auth/routes.ts using better-auth
+- [X] T056 [P] [US2] Implement POST /auth/signout route in auth-server/src/auth/routes.ts
+- [X] T057 [P] [US2] Add httpOnly cookie configuration for JWT tokens in auth-server/src/auth/auth.config.ts
+- [X] T058 [P] [US2] Implement POST /auth/refresh route in auth-server/src/auth/routes.ts for token refresh
 
 ### API Server Profile Retrieval
 
-- [ ] T059 [US2] Implement GET /api/profile endpoint in backend/src/profiles/router.py with JWT validation using get_current_user dependency
+- [X] T059 [US2] Implement GET /api/profile endpoint in backend/src/profiles/router.py with JWT validation using get_current_user dependency
 
 ### Frontend Authentication
 
-- [ ] T060 [P] [US2] Create signin page in book/src/pages/signin.tsx
-- [ ] T061 [P] [US2] Create SigninForm component in book/src/components/Auth/SigninForm.tsx with email and password fields
-- [ ] T062 [US2] Implement authService.signin() in book/src/services/authService.ts calling POST /auth/signin
-- [ ] T063 [US2] Implement authService.signout() in book/src/services/authService.ts calling POST /auth/signout
-- [ ] T064 [US2] Implement profileService.getProfile() in book/src/services/profileService.ts calling GET /api/profile
-- [ ] T065 [US2] Create useAuth hook in book/src/hooks/useAuth.ts with signin, signout, and user state
-- [ ] T066 [US2] Create AuthProvider component in book/src/components/Auth/AuthProvider.tsx with React Context for auth state
-- [ ] T067 [US2] Add session validation on app load in AuthProvider checking for existing token
-- [ ] T068 [US2] Wrap Docusaurus app with AuthProvider in book/src/theme/Root.tsx
-- [ ] T069 [US2] Add loading spinner during initial authentication check in AuthProvider
-- [ ] T070 [US2] Create ProtectedRoute component in book/src/components/Auth/ProtectedRoute.tsx that redirects to signin
-- [ ] T071 [US2] Add "Remember me" checkbox to SigninForm extending session to 7 days
+- [X] T060 [P] [US2] Create signin page in book/src/pages/signin.tsx
+- [X] T061 [P] [US2] Create SigninForm component in book/src/components/Auth/SigninForm.tsx with email and password fields
+- [X] T062 [US2] Implement authService.signin() in book/src/services/authService.ts calling POST /auth/signin
+- [X] T063 [US2] Implement authService.signout() in book/src/services/authService.ts calling POST /auth/signout
+- [X] T064 [US2] Implement profileService.getProfile() in book/src/services/profileService.ts calling GET /api/profile
+- [X] T065 [US2] Create useAuth hook in book/src/hooks/useAuth.ts with signin, signout, and user state
+- [X] T066 [US2] Create AuthProvider component in book/src/components/Auth/AuthProvider.tsx with React Context for auth state
+- [X] T067 [US2] Add session validation on app load in AuthProvider checking for existing token
+- [X] T068 [US2] Wrap Docusaurus app with AuthProvider in book/src/theme/Root.tsx
+- [X] T069 [US2] Add loading spinner during initial authentication check in AuthProvider
+- [X] T070 [US2] Create ProtectedRoute component in book/src/components/Auth/ProtectedRoute.tsx that redirects to signin
+- [X] T071 [US2] Add "Remember me" checkbox to SigninForm extending session to 7 days
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work - users can sign up, sign in, sign out, and stay authenticated
 
@@ -173,27 +173,27 @@ This feature uses microservices architecture:
 
 ### Backend Personalization
 
-- [ ] T072 [P] [US3] Create content variant metadata file in docs/_meta/variants.json mapping chapters to experience levels
-- [ ] T073 [P] [US3] Create personalization service in backend/src/personalization/service.py with get_variant_path() matching logic
-- [ ] T074 [P] [US3] Create personalization router in backend/src/personalization/router.py with GET /api/personalization/variant endpoint
-- [ ] T075 [US3] Register personalization router in backend/src/main.py
-- [ ] T076 [US3] Implement POST /api/personalization/tab-preference endpoint in backend/src/personalization/router.py
+- [-] T072 [P] [US3] Create content variant metadata file in docs/_meta/variants.json mapping chapters to experience levels
+- [-] T073 [P] [US3] Create personalization service in backend/src/personalization/service.py with get_variant_path() matching logic
+- [-] T074 [P] [US3] Create personalization router in backend/src/personalization/router.py with GET /api/personalization/variant endpoint
+- [-] T075 [US3] Register personalization router in backend/src/main.py
+- [-] T076 [US3] Implement POST /api/personalization/tab-preference endpoint in backend/src/personalization/router.py
 
 ### Frontend Tab Interface
 
-- [ ] T077 [P] [US3] Create ContentProvider context in book/src/components/Content/ContentProvider.tsx for active tab state
-- [ ] T078 [P] [US3] Create usePersonalization hook in book/src/hooks/usePersonalization.ts for variant selection
-- [ ] T079 [US3] Implement contentService.getVariant() in book/src/services/contentService.ts calling GET /api/personalization/variant
-- [ ] T080 [US3] Create ContentTabs component in book/src/components/Content/ContentTabs.tsx with Original and Personalized tabs
-- [ ] T081 [US3] Add ARIA roles and attributes to ContentTabs (role="tablist", role="tab", aria-selected)
-- [ ] T082 [US3] Add keyboard navigation to ContentTabs (Arrow keys, Home, End, Enter/Space)
-- [ ] T083 [US3] Create PersonalizedContent component in book/src/components/Content/PersonalizedContent.tsx using React.lazy for dynamic MDX imports
-- [ ] T084 [US3] Add tab selection persistence in sessionStorage within ContentTabs component
-- [ ] T085 [US3] Integrate ContentTabs into Docusaurus MDX layout in book/src/theme/DocItem/Layout/index.tsx
-- [ ] T086 [US3] Add smooth CSS transitions for tab switching in custom.css (<200ms)
-- [ ] T087 [US3] Preload inactive tab content using React Suspense to avoid loading delay
-- [ ] T088 [US3] Add fallback UI component for missing personalized content variants
-- [ ] T089 [US3] Add loading spinner for tab content using Suspense fallback
+- [-] T077 [P] [US3] Create ContentProvider context in book/src/components/Content/ContentProvider.tsx for active tab state
+- [-] T078 [P] [US3] Create usePersonalization hook in book/src/hooks/usePersonalization.ts for variant selection
+- [-] T079 [US3] Implement contentService.getVariant() in book/src/services/contentService.ts calling GET /api/personalization/variant
+- [-] T080 [US3] Create ContentTabs component in book/src/components/Content/ContentTabs.tsx with Original and Personalized tabs
+- [-] T081 [US3] Add ARIA roles and attributes to ContentTabs (role="tablist", role="tab", aria-selected)
+- [-] T082 [US3] Add keyboard navigation to ContentTabs (Arrow keys, Home, End, Enter/Space)
+- [-] T083 [US3] Create PersonalizedContent component in book/src/components/Content/PersonalizedContent.tsx using React.lazy for dynamic MDX imports
+- [-] T084 [US3] Add tab selection persistence in sessionStorage within ContentTabs component
+- [-] T085 [US3] Integrate ContentTabs into Docusaurus MDX layout in book/src/theme/DocItem/Layout/index.tsx
+- [-] T086 [US3] Add smooth CSS transitions for tab switching in custom.css (<200ms)
+- [-] T087 [US3] Preload inactive tab content using React Suspense to avoid loading delay
+- [-] T088 [US3] Add fallback UI component for missing personalized content variants
+- [-] T089 [US3] Add loading spinner for tab content using Suspense fallback
 
 **Checkpoint**: All users can now toggle between Original and Personalized content with smooth tab switching (<500ms)
 
@@ -207,23 +207,23 @@ This feature uses microservices architecture:
 
 ### Backend Profile Updates
 
-- [ ] T090 [P] [US4] Implement PUT /api/profile endpoint in backend/src/profiles/router.py with partial update support
-- [ ] T091 [US4] Update profile service in backend/src/profiles/service.py to recalculate derived_experience_level on update
+- [X] T090 [P] [US4] Implement PUT /api/profile endpoint in backend/src/profiles/router.py with partial update support
+- [X] T091 [US4] Update profile service in backend/src/profiles/service.py to recalculate derived_experience_level on update
 
 ### Frontend Profile Management
 
-- [ ] T092 [P] [US4] Create profile settings page in book/src/pages/profile.tsx
-- [ ] T093 [P] [US4] Create ProfileIcon component in book/src/components/Profile/ProfileIcon.tsx for navbar with user menu
-- [ ] T094 [US4] Create ProfileSettings component in book/src/components/Profile/ProfileSettings.tsx with display and edit modes
-- [ ] T095 [US4] Integrate BackgroundForm component into ProfileSettings for editing
-- [ ] T096 [US4] Implement profileService.updateProfile() in book/src/services/profileService.ts calling PUT /api/profile
-- [ ] T097 [US4] Create useProfile hook in book/src/hooks/useProfile.ts for profile state management and updates
-- [ ] T098 [US4] Add ProfileIcon to Docusaurus navbar in book/docusaurus.config.js navbar items
-- [ ] T099 [US4] Add save/cancel buttons to ProfileSettings with confirmation message on success
-- [ ] T100 [US4] Trigger content re-personalization after profile update by invalidating variant cache
-- [ ] T101 [US4] Add form validation matching signup rules in ProfileSettings
-- [ ] T102 [US4] Add unsaved changes warning dialog before navigation in ProfileSettings
-- [ ] T103 [US4] Add loading state during profile update with disabled save button
+- [X] T092 [P] [US4] Create profile settings page in book/src/pages/profile.tsx
+- [X] T093 [P] [US4] Create ProfileIcon component in book/src/components/Profile/ProfileIcon.tsx for navbar with user menu
+- [X] T094 [US4] Create ProfileSettings component in book/src/components/Profile/ProfileSettings.tsx with display and edit modes
+- [X] T095 [US4] Integrate BackgroundForm component into ProfileSettings for editing
+- [X] T096 [US4] Implement profileService.updateProfile() in book/src/services/profileService.ts calling PUT /api/profile
+- [X] T097 [US4] Create useProfile hook in book/src/hooks/useProfile.ts for profile state management and updates
+- [X] T098 [US4] Add ProfileIcon to Docusaurus navbar in book/docusaurus.config.js navbar items
+- [X] T099 [US4] Add save/cancel buttons to ProfileSettings with confirmation message on success
+- [X] T100 [US4] Trigger content re-personalization after profile update by invalidating variant cache
+- [X] T101 [US4] Add form validation matching signup rules in ProfileSettings
+- [X] T102 [US4] Add unsaved changes warning dialog before navigation in ProfileSettings
+- [X] T103 [US4] Add loading state during profile update with disabled save button
 
 **Checkpoint**: All user stories complete - full personalized learning experience with profile updates
 

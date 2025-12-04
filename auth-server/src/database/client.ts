@@ -3,6 +3,7 @@
  * Connects to shared Neon PostgreSQL database with connection pooling.
  */
 import { PrismaClient } from '@prisma/client';
+import { PrismaPg } from '@prisma/adapter-pg';
 
 // Singleton pattern for Prisma Client
 declare global {
@@ -10,24 +11,21 @@ declare global {
   var prisma: PrismaClient | undefined;
 }
 
-// Database connection configuration
-const DATABASE_URL = process.env.DATABASE_URL || process.env.NEON_DB_URL;
+// Database connection string from environment variables
+const connectionString = process.env.DATABASE_URL || process.env.NEON_DB_URL;
 
-if (!DATABASE_URL) {
+if (!connectionString) {
   throw new Error(
     'DATABASE_URL or NEON_DB_URL must be set in environment variables'
   );
 }
 
-// Create Prisma Client with connection pooling
+const adapter = new PrismaPg({ connectionString });
+
 export const prisma =
   global.prisma ||
   new PrismaClient({
-    datasources: {
-      db: {
-        url: DATABASE_URL,
-      },
-    },
+    adapter,
     log:
       process.env.NODE_ENV === 'development'
         ? ['query', 'error', 'warn']

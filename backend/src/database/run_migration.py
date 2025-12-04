@@ -1,6 +1,6 @@
 """
 Direct migration runner to avoid Alembic env.py issues.
-Runs the 001_create_auth_tables migration.
+Runs database migrations/initialization.
 """
 import os
 import sys
@@ -14,51 +14,38 @@ from dotenv import load_dotenv
 import psycopg
 
 # Load environment variables
-load_dotenv()
+load_dotenv(override=True)
 
 def run_migration():
-    """Run the 001_create_auth_tables migration."""
+    """Run database migrations."""
     # Get database URL
-    db_url = os.getenv("DATABASE_URL") or os.getenv("NEON_DB_URL")
+    db_url = os.getenv("NEON_DB_URL") or os.getenv("DATABASE_URL")
     if not db_url:
-        print("ERROR: DATABASE_URL or NEON_DB_URL not found in environment")
+        print("ERROR: NEON_DB_URL or DATABASE_URL not found in environment")
         sys.exit(1)
 
-    # Convert URL format if needed
-    if db_url.startswith("postgresql://"):
-        db_url = db_url.replace("postgresql://", "postgresql+psycopg://", 1)
-
-    # Remove the +psycopg part for psycopg3 direct connection
-    conn_url = db_url.replace("postgresql+psycopg://", "postgresql://", 1)
-
+    # Clean up URL for psycopg3
+    conn_url = db_url
+    if "postgresql+psycopg://" in conn_url:
+         conn_url = conn_url.replace("postgresql+psycopg://", "postgresql://", 1)
+    
     print(f"Connecting to database...")
 
     try:
         # Connect to database
         with psycopg.connect(conn_url) as conn:
             with conn.cursor() as cur:
-                # Check if tables already exist
-                cur.execute("""
-                    SELECT table_name
-                    FROM information_schema.tables
-                    WHERE table_schema = 'public'
-                    AND table_name IN ('users', 'user_sessions', 'user_profiles', 'tab_preferences');
-                """)
-                existing_tables = [row[0] for row in cur.fetchall()]
-
-                if existing_tables:
-                    print(f"Tables already exist: {existing_tables}")
-                    print("Skipping migration to avoid conflicts.")
-                    return
-
-                print("Creating authentication tables...")
-
-                # Create users table
+                print("Checking database state...")
+                
+                # 1. Create Tables if they don't exist
+                # Create users table (updated with name/image and VARCHAR id)
                 cur.execute("""
                     CREATE TABLE IF NOT EXISTS users (
-                        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                        id VARCHAR(255) PRIMARY KEY,
+                        name VARCHAR(255) NULL,
                         email VARCHAR(255) NOT NULL UNIQUE,
-                        password_hash VARCHAR(255) NOT NULL,
+                        password_hash VARCHAR(255) NULL,
+                        image TEXT NULL,
                         status VARCHAR(20) NOT NULL DEFAULT 'active',
                         email_verified BOOLEAN DEFAULT false,
                         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -71,10 +58,33 @@ def run_migration():
                     );
                 """)
 
+                # Create accounts table for better-auth
+                cur.execute("""
+                    CREATE TABLE IF NOT EXISTS accounts (
+                        id VARCHAR(255) PRIMARY KEY,
+                        user_id VARCHAR(255) NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                        type VARCHAR(255) NULL,
+                        provider_id VARCHAR(255) NOT NULL,
+                        account_id VARCHAR(255) NOT NULL,
+                        refresh_token TEXT NULL,
+                        access_token TEXT NULL,
+                        expires_at INTEGER NULL,
+                        token_type VARCHAR(255) NULL,
+                        scope VARCHAR(255) NULL,
+                        id_token TEXT NULL,
+                        session_state VARCHAR(255) NULL,
+                        password_hash VARCHAR(255) NULL,
+                        password_salt VARCHAR(255) NULL,
+                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        UNIQUE (provider_id, account_id)
+                    );
+                """)
+
                 # Create user_profiles table
                 cur.execute("""
                     CREATE TABLE IF NOT EXISTS user_profiles (
-                        user_id UUID PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+                        user_id VARCHAR(255) PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
                         programming_languages JSONB NOT NULL DEFAULT '[]'::jsonb,
                         frameworks JSONB NOT NULL DEFAULT '[]'::jsonb,
                         software_experience_years INTEGER NOT NULL DEFAULT 0,
@@ -96,41 +106,34 @@ def run_migration():
                     );
                 """)
 
-                # Create user_sessions table
                 cur.execute("""
                     CREATE TABLE IF NOT EXISTS user_sessions (
-                        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-                        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-                        token_hash VARCHAR(255) NOT NULL UNIQUE,
-                        refresh_token_hash VARCHAR(255) NULL,
-                        ip_address INET NULL,
+                        id VARCHAR(255) PRIMARY KEY,
+                        user_id VARCHAR(255) NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                        token VARCHAR(255) NOT NULL UNIQUE,
+                        expires_at TIMESTAMP NOT NULL,
+                        ip_address TEXT NULL,
                         user_agent TEXT NULL,
                         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                        expires_at TIMESTAMP NOT NULL,
-                        last_activity_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                        revoked BOOLEAN DEFAULT false,
+                        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                         CONSTRAINT check_expires_after_created CHECK (expires_at > created_at)
                     );
                 """)
 
-                # Create tab_preferences table
                 cur.execute("""
                     CREATE TABLE IF NOT EXISTS tab_preferences (
-                        user_id UUID PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+                        user_id VARCHAR(255) PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
                         active_tab VARCHAR(20) NOT NULL DEFAULT 'original',
                         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                         CONSTRAINT check_active_tab CHECK (active_tab IN ('original', 'personalized'))
                     );
                 """)
 
-                print("Creating indexes...")
-
-                # Create indexes for users
+                # 3. Create Indexes (IF NOT EXISTS handles duplicates)
+                print("Verifying indexes...")
                 cur.execute("CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);")
                 cur.execute("CREATE INDEX IF NOT EXISTS idx_users_status ON users(status);")
                 cur.execute("CREATE INDEX IF NOT EXISTS idx_users_created_at ON users(created_at);")
-
-                # Create indexes for user_profiles
                 cur.execute("CREATE INDEX IF NOT EXISTS idx_derived_experience_level ON user_profiles(derived_experience_level);")
                 cur.execute("CREATE INDEX IF NOT EXISTS idx_software_experience ON user_profiles(software_experience_years);")
                 cur.execute("CREATE INDEX IF NOT EXISTS idx_hardware_experience ON user_profiles(hardware_experience_years);")
@@ -138,19 +141,13 @@ def run_migration():
                 cur.execute("CREATE INDEX IF NOT EXISTS idx_frameworks ON user_profiles USING gin(frameworks);")
                 cur.execute("CREATE INDEX IF NOT EXISTS idx_robotics_platforms ON user_profiles USING gin(robotics_platforms);")
                 cur.execute("CREATE INDEX IF NOT EXISTS idx_sensors_actuators ON user_profiles USING gin(sensors_actuators);")
-
-                # Create indexes for user_sessions
                 cur.execute("CREATE INDEX IF NOT EXISTS idx_user_sessions_user_id ON user_sessions(user_id);")
-                cur.execute("CREATE INDEX IF NOT EXISTS idx_user_sessions_token ON user_sessions(token_hash);")
+                cur.execute("CREATE INDEX IF NOT EXISTS idx_user_sessions_token ON user_sessions(token);")
                 cur.execute("CREATE INDEX IF NOT EXISTS idx_user_sessions_expires ON user_sessions(expires_at);")
-                cur.execute("CREATE INDEX IF NOT EXISTS idx_user_sessions_activity ON user_sessions(last_activity_at);")
-
-                # Create index for tab_preferences
                 cur.execute("CREATE INDEX IF NOT EXISTS idx_tab_preferences_updated ON tab_preferences(updated_at);")
 
                 conn.commit()
-                print("✅ Migration completed successfully!")
-                print("Created tables: users, user_profiles, user_sessions, tab_preferences")
+                print("✅ Database migration completed successfully!")
 
     except Exception as e:
         print(f"❌ Migration failed: {e}")

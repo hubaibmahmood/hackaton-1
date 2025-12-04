@@ -6,12 +6,38 @@ import { betterAuth } from 'better-auth';
 import { prismaAdapter } from 'better-auth/adapters/prisma';
 import { prisma } from '../database/client';
 import { env } from '../config/env';
+import { customSession } from 'better-auth/plugins'; // Import customSession
 
 export const auth = betterAuth({
   // Database adapter using Prisma
   database: prismaAdapter(prisma, {
     provider: 'postgresql',
   }),
+
+  plugins: [
+    // customSession({ // Temporarily disable customSession plugin
+    //   async onSessionCreate(session, context) {
+    //     let ipAddress = context.request.headers.get("x-forwarded-for") || context.request.ip;
+    //     if (ipAddress === "") {
+    //       ipAddress = null;
+    //     }
+
+    //     let userAgent = context.request.headers.get("user-agent");
+    //     if (userAgent === "") {
+    //       userAgent = null;
+    //     }
+
+    //     return {
+    //       ...session,
+    //       ipAddress,
+    //       userAgent,
+    //     };
+    //   },
+    //   async onSessionGet(session, context) { // Re-added onSessionGet after checking docs
+    //     return session;
+    //   },
+    // }),
+  ],
 
   // Email and password authentication
   emailAndPassword: {
@@ -23,6 +49,7 @@ export const auth = betterAuth({
 
   // Session configuration
   session: {
+    modelName: 'userSession',
     expiresIn: 60 * 60 * 24 * 7, // 7 days (in seconds)
     updateAge: 60 * 60 * 24, // Refresh daily (in seconds)
     cookieCache: {
@@ -41,6 +68,12 @@ export const auth = betterAuth({
     },
     useSecureCookies: env.nodeEnv === 'production',
     cookiePrefix: 'better-auth',
+    defaultCookieAttributes: {
+        httpOnly: true,
+        secure: env.nodeEnv === 'production',
+        sameSite: 'lax', // Use 'lax' for normal navigation, 'strict' if possible
+        path: '/',
+    },
   },
 
   // Rate limiting (handled by middleware, but configure here)

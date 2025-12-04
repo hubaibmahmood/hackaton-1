@@ -5,8 +5,16 @@
 import axios, { AxiosInstance, AxiosError } from 'axios';
 
 // Auth Server base URL from environment or default
-const AUTH_SERVER_URL =
-  process.env.REACT_APP_AUTH_SERVER_URL || 'http://localhost:3000';
+// Handle process.env safely for browser environment
+const getEnvVar = (key: string, defaultValue: string): string => {
+  try {
+    return process.env[key] || defaultValue;
+  } catch {
+    return defaultValue;
+  }
+};
+
+const AUTH_SERVER_URL = getEnvVar('REACT_APP_AUTH_SERVER_URL', 'http://localhost:3001');
 
 /**
  * Create Axios instance for Auth Server

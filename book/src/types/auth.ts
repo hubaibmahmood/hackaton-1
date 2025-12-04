@@ -17,7 +17,8 @@ export interface SignupRequest {
 
 export interface SignupResponse {
   user: User;
-  session: {
+  token?: string;
+  session?: {
     id: string;
     userId: string;
     expiresAt: string;

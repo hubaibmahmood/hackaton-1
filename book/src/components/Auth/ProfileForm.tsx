@@ -41,6 +41,8 @@ interface ProfileFormProps {
   onSubmit: (data: ProfileFormData) => void;
   loading?: boolean;
   error?: string | null;
+  initialData?: Partial<ProfileFormData>;
+  submitLabel?: string;
 }
 
 interface FormErrors {
@@ -49,14 +51,20 @@ interface FormErrors {
   hardware_experience_years?: string;
 }
 
-export const ProfileForm: React.FC<ProfileFormProps> = ({ onSubmit, loading, error }) => {
+export const ProfileForm: React.FC<ProfileFormProps> = ({ 
+  onSubmit, 
+  loading, 
+  error, 
+  initialData, 
+  submitLabel = "Complete Signup" 
+}) => {
   const [formData, setFormData] = useState<ProfileFormData>({
-    programming_languages: [],
-    frameworks: [],
-    software_experience_years: 0,
-    robotics_platforms: [],
-    sensors_actuators: [],
-    hardware_experience_years: 0,
+    programming_languages: initialData?.programming_languages || [],
+    frameworks: initialData?.frameworks || [],
+    software_experience_years: initialData?.software_experience_years || 0,
+    robotics_platforms: initialData?.robotics_platforms || [],
+    sensors_actuators: initialData?.sensors_actuators || [],
+    hardware_experience_years: initialData?.hardware_experience_years || 0,
   });
 
   const [errors, setErrors] = useState<FormErrors>({});
@@ -252,9 +260,9 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({ onSubmit, loading, err
           fullWidth
           disabled={loading}
           isLoading={loading}
-          loadingText="Creating Profile..."
+          loadingText="Processing..."
         >
-          Complete Signup
+          {submitLabel}
         </Button>
       </div>
     </form>

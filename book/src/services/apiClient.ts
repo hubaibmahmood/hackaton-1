@@ -4,10 +4,19 @@
  * Automatically includes JWT tokens from auth state.
  */
 import axios, { AxiosInstance, AxiosError, InternalAxiosRequestConfig } from 'axios';
+import { getAccessToken, setAccessToken } from './tokenStore';
 
 // API Server base URL from environment or default
-const API_SERVER_URL =
-  process.env.REACT_APP_API_SERVER_URL || 'http://localhost:8000';
+// Handle process.env safely for browser environment
+const getEnvVar = (key: string, defaultValue: string): string => {
+  try {
+    return process.env[key] || defaultValue;
+  } catch {
+    return defaultValue;
+  }
+};
+
+const API_SERVER_URL = getEnvVar('REACT_APP_API_SERVER_URL', 'http://localhost:8000');
 
 /**
  * Create Axios instance for API Server
@@ -25,8 +34,8 @@ export const apiClient: AxiosInstance = axios.create({
  */
 apiClient.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
-    // Get JWT token from localStorage (will be set by auth service)
-    const token = localStorage.getItem('authToken');
+    // Get JWT token from in-memory store
+    const token = getAccessToken();
 
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -59,7 +68,7 @@ apiClient.interceptors.response.use(
         case 401:
           console.error('Authentication required:', data.detail);
           // Clear invalid token
-          localStorage.removeItem('authToken');
+          setAccessToken(null);
           // Optionally redirect to login
           // window.location.href = '/signin';
           break;

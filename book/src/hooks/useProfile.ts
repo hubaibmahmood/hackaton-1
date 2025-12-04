@@ -1,50 +1,85 @@
-/**
- * Custom hook for user profile management.
- * Handles profile creation and updates.
- */
-import { useState } from 'react';
-import { apiClient } from '../services/apiClient';
-import type { ProfileCreateRequest, ProfileResponse } from '../types/profile';
+import { useState, useEffect, useCallback } from 'react';
+import { profileService } from '../services/profileService';
+import { UserProfile, UpdateProfileRequest } from '../types/profile';
+import { useAuth } from './useAuth';
 
-interface UseProfileReturn {
-  createProfile: (profileData: Omit<ProfileCreateRequest, 'user_id'>) => Promise<ProfileResponse>;
-  loading: boolean;
+interface ProfileState {
+  data: UserProfile | null;
+  isLoading: boolean;
   error: string | null;
-  clearError: () => void;
 }
 
-export function useProfile(userId: string): UseProfileReturn {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+export const useProfile = () => {
+  const { user } = useAuth();
+  const [profileState, setProfileState] = useState<ProfileState>({
+    data: null,
+    isLoading: true,
+    error: null,
+  });
 
-  const createProfile = async (
-    profileData: Omit<ProfileCreateRequest, 'user_id'>
-  ): Promise<ProfileResponse> => {
-    setLoading(true);
-    setError(null);
+  const fetchProfile = useCallback(async () => {
+    if (!user) {
+      setProfileState(prev => ({ ...prev, isLoading: false, data: null }));
+      return;
+    }
 
     try {
-      const requestData: ProfileCreateRequest = {
-        user_id: userId,
-        ...profileData,
-      };
-
-      const response = await apiClient.post<ProfileResponse>('/api/profile', requestData);
-      return response.data;
+      setProfileState(prev => ({ ...prev, isLoading: true, error: null }));
+      const data = await profileService.getProfile();
+      setProfileState({ data, isLoading: false, error: null });
     } catch (err: any) {
-      const errorMessage =
-        err.response?.data?.detail ||
-        err.response?.data?.message ||
-        'Failed to create profile. Please try again.';
+      // If 404 (Not Found), it just means user has no profile yet. This is expected for new users.
+      const isNotFound = err.response?.status === 404;
+      setProfileState({
+        data: null,
+        isLoading: false,
+        error: isNotFound ? null : (err.response?.data?.message || 'Failed to load profile'),
+      });
+    }
+  }, [user]);
 
-      setError(errorMessage);
+  const updateProfile = async (data: UpdateProfileRequest) => {
+    try {
+      setProfileState(prev => ({ ...prev, isLoading: true, error: null }));
+      const updatedProfile = await profileService.updateProfile(data);
+      setProfileState({ data: updatedProfile, isLoading: false, error: null });
+      return updatedProfile;
+    } catch (err: any) {
+      const errorMessage = err.response?.data?.message || 'Failed to update profile';
+      setProfileState(prev => ({
+        ...prev,
+        isLoading: false,
+        error: errorMessage,
+      }));
       throw new Error(errorMessage);
-    } finally {
-      setLoading(false);
     }
   };
 
-  const clearError = () => setError(null);
+  const createProfile = async (data: any) => {
+    try {
+      setProfileState(prev => ({ ...prev, isLoading: true, error: null }));
+      const newProfile = await profileService.createProfile(data);
+      setProfileState({ data: newProfile, isLoading: false, error: null });
+      return newProfile;
+    } catch (err: any) {
+      const errorMessage = err.response?.data?.message || 'Failed to create profile';
+      setProfileState(prev => ({
+        ...prev,
+        isLoading: false,
+        error: errorMessage,
+      }));
+      throw new Error(errorMessage);
+    }
+  };
 
-  return { createProfile, loading, error, clearError };
-}
+  useEffect(() => {
+    fetchProfile();
+  }, [fetchProfile]);
+
+  return {
+    ...profileState,
+    fetchProfile,
+    updateProfile,
+    createProfile,
+  };
+};
