@@ -71,7 +71,7 @@ export const auth = betterAuth({
     defaultCookieAttributes: {
         httpOnly: true,
         secure: env.nodeEnv === 'production',
-        sameSite: 'lax', // Use 'lax' for normal navigation, 'strict' if possible
+        sameSite: env.nodeEnv === 'production' ? 'none' : 'lax', // 'none' for cross-site requests in production
         path: '/',
     },
   },
