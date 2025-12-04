@@ -4,8 +4,8 @@
  */
 import { betterAuth } from 'better-auth';
 import { prismaAdapter } from 'better-auth/adapters/prisma';
-import { prisma } from '../database/client';
-import { env } from '../config/env';
+import { prisma } from '../database/client.js';
+import { env } from '../config/env.js';
 import { customSession } from 'better-auth/plugins'; // Import customSession
 
 export const auth = betterAuth({

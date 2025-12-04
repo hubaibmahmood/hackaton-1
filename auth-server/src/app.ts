@@ -3,11 +3,11 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import { toNodeHandler } from 'better-auth/node';
-import { env } from './config/env';
-import { auth } from './auth/auth.config';
-import authRoutes from './auth/routes';
-import { errorHandler } from './middleware/errorHandler';
-import { logger } from './utils/logger';
+import { env } from './config/env.js';
+import { auth } from './auth/auth.config.js';
+import authRoutes from './auth/routes.js';
+import { errorHandler } from './middleware/errorHandler.js';
+import { logger } from './utils/logger.js';
 
 const app = express();
 

@@ -3,8 +3,8 @@
  * Extends better-auth with additional endpoints.
  */
 import { Router } from 'express';
-import { auth } from './auth.config';
-import { logger } from '../utils/logger';
+import { auth } from './auth.config.js';
+import { logger } from '../utils/logger.js';
 
 const router = Router();
 
