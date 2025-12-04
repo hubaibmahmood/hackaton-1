@@ -69,6 +69,7 @@ jobs:
         run: npm run build
         env:
           NODE_ENV: production
+          REACT_APP_AUTH_SERVER_URL: https://hackaton-1-mp876tf96-hubaibs-projects-def77997.vercel.app
 
       - name: Run accessibility tests
         working-directory: ./book
