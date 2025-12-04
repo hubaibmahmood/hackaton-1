@@ -51,6 +51,15 @@ app.use('/api/auth', authRoutes);
 // Mount better-auth routes (handles /api/auth/signup, /api/auth/signin, etc.)
 app.all('/api/auth/*', toNodeHandler(auth));
 
+// Root endpoint
+app.get('/', (req, res) => {
+  res.json({
+    message: 'Auth Server is running',
+    status: 'online',
+    docs: '/api/auth/docs' // Optional: link to docs if you have them
+  });
+});
+
 // Health check endpoint
 app.get('/health', (req, res) => {
   res.json({
