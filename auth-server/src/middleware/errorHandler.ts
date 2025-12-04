@@ -3,8 +3,8 @@
  * Catches all errors and returns consistent error responses.
  */
 import { Request, Response, NextFunction } from 'express';
-import { AppError, ValidationError } from '../utils/errors';
-import { logger } from '../utils/logger';
+import { AppError, ValidationError } from '../utils/errors.js';
+import { logger } from '../utils/logger.js';
 
 /**
  * Error response interface
