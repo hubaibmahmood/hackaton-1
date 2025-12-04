@@ -14,7 +14,10 @@ const getEnvVar = (key: string, defaultValue: string): string => {
   }
 };
 
-const AUTH_SERVER_URL = getEnvVar('DOCUSAURUS_AUTH_SERVER_URL', 'http://localhost:3001');
+const AUTH_SERVER_URL = getEnvVar(
+  'DOCUSAURUS_AUTH_SERVER_URL',
+  'https://hackaton-1-three.vercel.app/',
+);
 
 /**
  * Create Axios instance for Auth Server
@@ -41,7 +44,7 @@ authClient.interceptors.request.use(
   },
   (error) => {
     return Promise.reject(error);
-  }
+  },
 );
 
 /**
@@ -79,7 +82,7 @@ authClient.interceptors.response.use(
     }
 
     return Promise.reject(error);
-  }
+  },
 );
 
 export default authClient;
