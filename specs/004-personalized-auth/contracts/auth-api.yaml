@@ -1,0 +1,577 @@
+openapi: 3.0.3
+info:
+  title: Auth Server API (better-auth.com)
+  version: 1.0.0
+  description: |
+    **Authentication Server** - Node.js/TypeScript backend deployed on Vercel.
+
+    Handles user authentication with better-auth.com library:
+    - User signup with email/password
+    - User signin and session management
+    - JWT token generation (7-day expiration)
+    - Session validation and refresh
+
+    **Architecture**: Microservices system with two backends:
+    - **Auth Server** (THIS API): Authentication only → Vercel (Node.js)
+    - **API Server** (separate): Profile management, personalization → Render (FastAPI)
+
+    **Database**: Shared Neon PostgreSQL
+    - Auth Server manages: `users`, `user_sessions` tables
+    - API Server manages: `user_profiles`, `tab_preferences` tables
+
+    **JWT Flow**: Auth Server issues JWT tokens → Frontend sends JWT to API Server → API Server validates JWT locally
+  contact:
+    name: API Support
+    email: support@example.com
+
+servers:
+  - url: http://localhost:3000
+    description: Local development (Auth Server)
+  - url: https://auth-yourbook.vercel.app
+    description: Production (Vercel deployment)
+
+tags:
+  - name: Authentication
+    description: User authentication and session management endpoints
+
+paths:
+  /auth/signup:
+    post:
+      tags:
+        - Authentication
+      summary: Register a new user account
+      description: |
+        Creates a new user account with email/password authentication and collects
+        background information (software/hardware experience) for content personalization.
+
+        **Success Criteria (SC-002)**: < 10 seconds from signup to personalized content
+        **Requirement**: FR-001, FR-013, FR-016
+      operationId: signupUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SignupRequest'
+            examples:
+              beginner:
+                summary: Beginner user with minimal experience
+                value:
+                  email: alice@example.com
+                  password: SecurePass123
+                  programmingLanguages: ["Python"]
+                  frameworks: []
+                  softwareExperienceYears: 1
+                  roboticsPlatforms: []
+                  sensorsActuators: []
+                  hardwareExperienceYears: 0
+              advanced:
+                summary: Advanced user with diverse background
+                value:
+                  email: bob@example.com
+                  password: SecurePass456
+                  programmingLanguages: ["Python", "C++", "Rust"]
+                  frameworks: ["ROS 2", "PyTorch", "TensorFlow"]
+                  softwareExperienceYears: 8
+                  roboticsPlatforms: ["Custom Robot", "Unitree Go2"]
+                  sensorsActuators: ["LiDAR", "IMU", "RGB-D Camera"]
+                  hardwareExperienceYears: 6
+      responses:
+        '201':
+          description: User account created successfully
+          headers:
+            Set-Cookie:
+              description: Session cookie (httpOnly, secure, 7-day expiration)
+              schema:
+                type: string
+                example: session_token=abc123...; HttpOnly; Secure; SameSite=Strict; Max-Age=604800
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+              example:
+                userId: "550e8400-e29b-41d4-a716-446655440000"
+                email: "alice@example.com"
+                derivedExperienceLevel: "Beginner"
+                sessionToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                expiresAt: "2025-12-09T10:30:00Z"
+        '400':
+          description: Invalid request data or validation failure
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                weakPassword:
+                  summary: Password does not meet security requirements
+                  value:
+                    error: "VALIDATION_ERROR"
+                    message: "Password must contain at least 8 characters with uppercase, lowercase, and number"
+                    details:
+                      field: "password"
+                      constraint: "NFR-001"
+                invalidEmail:
+                  summary: Email format is invalid
+                  value:
+                    error: "VALIDATION_ERROR"
+                    message: "Invalid email format"
+                    details:
+                      field: "email"
+        '409':
+          description: Email already registered
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: "CONFLICT"
+                message: "An account with this email already exists"
+                details:
+                  field: "email"
+        '503':
+          description: External authentication service unavailable (better-auth.com)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: "SERVICE_UNAVAILABLE"
+                message: "Authentication service is temporarily unavailable. Please try again later."
+                details:
+                  service: "better-auth.com"
+                  retryAfter: 60
+
+  /auth/signin:
+    post:
+      tags:
+        - Authentication
+      summary: Sign in to existing user account
+      description: |
+        Authenticates user with email and password, returns session token.
+
+        **Success Criteria (SC-002)**: < 10 seconds signin to personalized content
+        **Security (SC-007)**: Rate-limited to 5 failed attempts per hour (NFR-003)
+        **Requirement**: FR-002
+      operationId: signinUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SigninRequest'
+            example:
+              email: alice@example.com
+              password: SecurePass123
+      responses:
+        '200':
+          description: User authenticated successfully
+          headers:
+            Set-Cookie:
+              description: Session cookie (httpOnly, secure, 7-day expiration)
+              schema:
+                type: string
+                example: session_token=xyz789...; HttpOnly; Secure; SameSite=Strict; Max-Age=604800
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+              example:
+                userId: "550e8400-e29b-41d4-a716-446655440000"
+                email: "alice@example.com"
+                derivedExperienceLevel: "Intermediate"
+                sessionToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                expiresAt: "2025-12-09T10:30:00Z"
+        '400':
+          description: Invalid request format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: "VALIDATION_ERROR"
+                message: "Email and password are required"
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: "UNAUTHORIZED"
+                message: "Invalid email or password"
+                details:
+                  remainingAttempts: 3
+        '429':
+          description: Rate limit exceeded (5 failed attempts per hour)
+          headers:
+            Retry-After:
+              description: Seconds until rate limit resets
+              schema:
+                type: integer
+                example: 3600
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: "RATE_LIMIT_EXCEEDED"
+                message: "Too many failed login attempts. Please try again later."
+                details:
+                  retryAfter: 3600
+                  limit: "5 attempts per hour"
+        '503':
+          description: Authentication service unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: "SERVICE_UNAVAILABLE"
+                message: "Authentication service is temporarily unavailable"
+
+  /auth/signout:
+    post:
+      tags:
+        - Authentication
+      summary: Sign out and invalidate session
+      description: |
+        Invalidates the current session token and clears session cookie.
+        **Requirement**: FR-003
+      operationId: signoutUser
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      responses:
+        '204':
+          description: Successfully signed out (no content)
+          headers:
+            Set-Cookie:
+              description: Clear session cookie
+              schema:
+                type: string
+                example: session_token=; HttpOnly; Secure; SameSite=Strict; Max-Age=0
+        '401':
+          description: No active session or invalid token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: "UNAUTHORIZED"
+                message: "No active session found"
+
+  /auth/refresh:
+    post:
+      tags:
+        - Authentication
+      summary: Refresh session token
+      description: |
+        Validates current session and issues a new token with extended expiration.
+        **Performance (NFR-007)**: < 100ms added latency
+        **Requirement**: FR-014 (7-day session duration)
+      operationId: refreshSession
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Session refreshed successfully
+          headers:
+            Set-Cookie:
+              description: New session cookie with extended expiration
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  sessionToken:
+                    type: string
+                    format: jwt
+                    description: New JWT session token
+                  expiresAt:
+                    type: string
+                    format: date-time
+                    description: New expiration timestamp (7 days from now)
+                required:
+                  - sessionToken
+                  - expiresAt
+              example:
+                sessionToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                expiresAt: "2025-12-09T10:30:00Z"
+        '401':
+          description: Session expired or invalid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: "UNAUTHORIZED"
+                message: "Session expired. Please sign in again."
+        '503':
+          description: Authentication service unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/verify:
+    get:
+      tags:
+        - Authentication
+      summary: Verify current session validity
+      description: |
+        Validates current session token without refreshing.
+        Used by frontend to check authentication status.
+        **Performance (NFR-007)**: < 100ms added latency
+      operationId: verifySession
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Session is valid
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  valid:
+                    type: boolean
+                    example: true
+                  userId:
+                    type: string
+                    format: uuid
+                  email:
+                    type: string
+                    format: email
+                  expiresAt:
+                    type: string
+                    format: date-time
+                required:
+                  - valid
+                  - userId
+                  - email
+                  - expiresAt
+              example:
+                valid: true
+                userId: "550e8400-e29b-41d4-a716-446655440000"
+                email: "alice@example.com"
+                expiresAt: "2025-12-09T10:30:00Z"
+        '401':
+          description: Session is invalid or expired
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  valid:
+                    type: boolean
+                    example: false
+                  error:
+                    type: string
+                required:
+                  - valid
+              example:
+                valid: false
+                error: "Session expired"
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token in Authorization header
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: session_token
+      description: Session token stored in httpOnly cookie
+
+  schemas:
+    SignupRequest:
+      type: object
+      required:
+        - email
+        - password
+        - softwareExperienceYears
+        - hardwareExperienceYears
+      properties:
+        email:
+          type: string
+          format: email
+          maxLength: 255
+          description: User email address (unique identifier)
+          example: alice@example.com
+        password:
+          type: string
+          format: password
+          minLength: 8
+          maxLength: 128
+          description: |
+            Password must meet security requirements (NFR-001):
+            - Minimum 8 characters
+            - At least one uppercase letter
+            - At least one lowercase letter
+            - At least one number
+          example: SecurePass123
+        programmingLanguages:
+          type: array
+          items:
+            type: string
+          description: Selected programming languages (predefined + custom via "Other")
+          example: ["Python", "C++"]
+          default: []
+        frameworks:
+          type: array
+          items:
+            type: string
+          description: Selected frameworks/libraries (predefined + custom)
+          example: ["ROS 2", "PyTorch"]
+          default: []
+        softwareExperienceYears:
+          type: integer
+          minimum: 0
+          maximum: 50
+          description: Years of software development experience
+          example: 3
+        roboticsPlatforms:
+          type: array
+          items:
+            type: string
+          description: Selected robotics platforms (predefined + custom)
+          example: ["Arduino", "Raspberry Pi"]
+          default: []
+        sensorsActuators:
+          type: array
+          items:
+            type: string
+          description: Selected sensors/actuators (predefined + custom)
+          example: ["LiDAR", "IMU"]
+          default: []
+        hardwareExperienceYears:
+          type: integer
+          minimum: 0
+          maximum: 50
+          description: Years of hardware/robotics experience
+          example: 2
+
+    SigninRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+          description: User email address
+          example: alice@example.com
+        password:
+          type: string
+          format: password
+          description: User password
+          example: SecurePass123
+
+    AuthResponse:
+      type: object
+      required:
+        - userId
+        - email
+        - derivedExperienceLevel
+        - sessionToken
+        - expiresAt
+      properties:
+        userId:
+          type: string
+          format: uuid
+          description: Unique user identifier
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        email:
+          type: string
+          format: email
+          description: User email address
+          example: alice@example.com
+        derivedExperienceLevel:
+          type: string
+          enum:
+            - Beginner
+            - Intermediate
+            - Advanced
+          description: |
+            Cached experience level calculated from background (FR-009, FR-010):
+            - Beginner: 0-2 years
+            - Intermediate: 2-5 years
+            - Advanced: 5+ years
+            Uses conservative matching (minimum of software/hardware levels)
+          example: Intermediate
+        sessionToken:
+          type: string
+          format: jwt
+          description: JWT session token (7-day expiration)
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI1NTBlODQwMC1lMjliLTQxZDQtYTcxNi00NDY2NTU0NDAwMDAiLCJleHAiOjE3MzM3NDU0MDB9.xyz"
+        expiresAt:
+          type: string
+          format: date-time
+          description: Session expiration timestamp (ISO 8601)
+          example: "2025-12-09T10:30:00Z"
+
+    ErrorResponse:
+      type: object
+      required:
+        - error
+        - message
+      properties:
+        error:
+          type: string
+          enum:
+            - VALIDATION_ERROR
+            - UNAUTHORIZED
+            - CONFLICT
+            - RATE_LIMIT_EXCEEDED
+            - SERVICE_UNAVAILABLE
+            - INTERNAL_ERROR
+          description: Error type code
+          example: VALIDATION_ERROR
+        message:
+          type: string
+          description: Human-readable error message
+          example: "Password must contain at least 8 characters"
+        details:
+          type: object
+          additionalProperties: true
+          description: Additional error context (field names, constraints, retry info)
+          example:
+            field: "password"
+            constraint: "NFR-001"
+
+  examples:
+    SignupBeginnerExample:
+      summary: Beginner user signup
+      value:
+        email: student@university.edu
+        password: MyFirstRobot2025!
+        programmingLanguages: ["Python"]
+        frameworks: []
+        softwareExperienceYears: 1
+        roboticsPlatforms: []
+        sensorsActuators: []
+        hardwareExperienceYears: 0
+
+    SignupAdvancedExample:
+      summary: Advanced user signup
+      value:
+        email: robotics.engineer@company.com
+        password: AdvancedRobotics2025!
+        programmingLanguages: ["Python", "C++", "Rust", "MATLAB"]
+        frameworks: ["ROS 2", "PyTorch", "TensorFlow", "OpenCV"]
+        softwareExperienceYears: 10
+        roboticsPlatforms: ["Custom Robot", "Unitree Go2", "Boston Dynamics Spot"]
+        sensorsActuators: ["LiDAR", "IMU", "RGB-D Camera", "Force/Torque Sensor", "BLDC Motor"]
+        hardwareExperienceYears: 8
+
+security:
+  - bearerAuth: []
+  - cookieAuth: []

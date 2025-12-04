@@ -1,6 +1,7 @@
 import {themes as prismThemes} from 'prism-react-renderer';
 import type {Config} from '@docusaurus/types';
 import type * as Preset from '@docusaurus/preset-classic';
+import path from 'path';
 
 // This runs in Node.js - Don't use client-side code here (browser APIs, JSX...)
 
@@ -13,6 +14,23 @@ const config: Config = {
   future: {
     v4: true, // Improve compatibility with the upcoming Docusaurus v4
   },
+
+  plugins: [
+    function (context, options) {
+      return {
+        name: 'custom-alias-plugin',
+        configureWebpack(config, isServer) {
+          return {
+            resolve: {
+              alias: {
+                '@': path.resolve(__dirname, './src'),
+              },
+            },
+          };
+        },
+      };
+    },
+  ],
 
   // Set the production url of your site here
   url: 'https://hubaibmahmood.github.io',
@@ -90,6 +108,14 @@ const config: Config = {
         {
           href: 'https://github.com/hubaibmahmood/hackaton-1',
           label: 'GitHub',
+          position: 'right',
+        },
+        {
+          type: 'custom-auth-buttons',
+          position: 'right',
+        },
+        {
+          type: 'custom-profile',
           position: 'right',
         },
       ],

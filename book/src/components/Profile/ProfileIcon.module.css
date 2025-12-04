@@ -1,0 +1,79 @@
+.container {
+  position: relative;
+  display: inline-block;
+}
+
+.iconButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: var(--ifm-color-primary);
+  color: white;
+  font-weight: bold;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.2s;
+  padding: 0;
+  margin: 0 8px;
+}
+
+.iconButton:hover {
+  opacity: 0.9;
+}
+
+.dropdown {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  margin-top: 8px;
+  width: 200px;
+  background-color: var(--ifm-background-surface-color);
+  border: 1px solid var(--ifm-color-emphasis-200);
+  border-radius: var(--ifm-global-radius);
+  box-shadow: var(--ifm-global-shadow-md);
+  z-index: 100;
+  overflow: hidden;
+  text-align: left;
+}
+
+.userInfo {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--ifm-color-emphasis-200);
+  font-size: 0.9rem;
+  color: var(--ifm-font-color-base);
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.menuItem {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 10px 16px;
+  font-size: 0.9rem;
+  color: var(--ifm-font-color-base);
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.menuItem:hover {
+  background-color: var(--ifm-color-emphasis-100);
+  text-decoration: none;
+  color: var(--ifm-color-primary);
+}
+
+.signOut {
+  color: var(--ifm-color-danger);
+}
+
+.signOut:hover {
+  background-color: var(--ifm-color-danger-lightest);
+  color: var(--ifm-color-danger-darker);
+}

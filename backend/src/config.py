@@ -33,6 +33,9 @@ class Settings(BaseSettings):
     # Neon Postgres Configuration
     neon_db_url: str = Field(..., description="Neon Postgres connection string")
 
+    # JWT Configuration
+    jwt_secret: str = Field(..., description="JWT Secret Key")
+
     # CORS Configuration
     frontend_origin: str = Field(
         default="http://localhost:3000",

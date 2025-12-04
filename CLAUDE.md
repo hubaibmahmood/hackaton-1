@@ -212,6 +212,11 @@ See `.specify/memory/constitution.md` for code quality, testing, performance, se
 ## Active Technologies
 - Node.js 18.x+ (LTS), TypeScript 5.x (for Docusaurus configuration and plugins) + Docusaurus 3.x, React 18.x, MDX 3.x, Prism.js (syntax highlighting) (001-book-infrastructure)
 - Git repository for content and static assets (2MB/file, 100MB total), GitHub Pages for hosting (001-book-infrastructure)
+- **Auth Server (Node.js/Vercel)**: Node.js 20+ LTS, TypeScript 5.6.2, better-auth 1.0+, Express 4.x, Prisma 5.x (004-personalized-auth)
+- **API Server (FastAPI/Render)**: Python 3.12+, FastAPI 0.104+, PostgreSQL (Neon Serverless), psycopg 3.1+, Pydantic 2.0+, python-jose (JWT validation) (004-personalized-auth)
+- **Frontend**: @better-auth/react (auth client), React Hook Form, Zod (validation), Axios (HTTP client) (004-personalized-auth)
+- **Shared Database**: Neon Serverless PostgreSQL - Auth Server manages users/sessions, API Server manages profiles/preferences (004-personalized-auth)
 
 ## Recent Changes
 - 001-book-infrastructure: Added Node.js 18.x+ (LTS), TypeScript 5.x (for Docusaurus configuration and plugins) + Docusaurus 3.x, React 18.x, MDX 3.x, Prism.js (syntax highlighting)
+- 004-personalized-auth: Implemented microservices architecture with two backends: (1) Node.js Auth Server (better-auth.com) on Vercel for authentication, (2) Python/FastAPI API Server on Render for profile management and personalization. Shared Neon PostgreSQL database with distributed table ownership. JWT-based stateless authentication with no inter-service HTTP calls. Cross-platform deployment (Vercel + Render) maximizes free tier limits.
