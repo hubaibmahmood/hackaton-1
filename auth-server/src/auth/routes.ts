@@ -14,14 +14,27 @@ const router = Router();
  */
 router.get('/me', async (req, res, next) => {
   try {
+    logger.debug('Attempting to get session for /me endpoint', {
+      cookieHeader: req.headers.cookie, // Log the raw cookie header
+    });
+
     const session = await auth.api.getSession({ headers: req.headers });
 
     if (!session) {
+      logger.warn('No active session found for /me endpoint', {
+        cookieHeader: req.headers.cookie,
+        sessionId: session?.session?.id // Log session ID if available
+      });
       return res.status(401).json({
         error: 'Unauthorized',
         message: 'No active session found',
       });
     }
+
+    logger.debug('Session found for /me endpoint', {
+      userId: session.user.id,
+      sessionId: session.session.id,
+    });
 
     res.json({
       userId: session.user.id,
