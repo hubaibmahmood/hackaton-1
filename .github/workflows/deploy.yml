@@ -3,11 +3,11 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches:
-      - main  # Only deploy from main branch
+      - main # Only deploy from main branch
   pull_request:
     branches:
-      - main  # Build and test on PRs
-  workflow_dispatch:  # Allow manual trigger
+      - main # Build and test on PRs
+  workflow_dispatch: # Allow manual trigger
 
 # Prevent concurrent deployments
 concurrency:
@@ -15,7 +15,7 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  NODE_VERSION: '20.x'  # LTS version
+  NODE_VERSION: "20.x" # LTS version
 
 jobs:
   # Build job
@@ -27,14 +27,14 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Full history for git metadata
+          fetch-depth: 0 # Full history for git metadata
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-          cache-dependency-path: 'book/package-lock.json'
+          cache: "npm"
+          cache-dependency-path: "book/package-lock.json"
 
       - name: Install dependencies
         working-directory: ./book
@@ -69,7 +69,7 @@ jobs:
         run: npm run build
         env:
           NODE_ENV: production
-          REACT_APP_AUTH_SERVER_URL: https://hackaton-1-mp876tf96-hubaibs-projects-def77997.vercel.app
+          REACT_APP_AUTH_SERVER_URL: https://hackaton-1-three.vercel.app/
 
       - name: Run accessibility tests
         working-directory: ./book
