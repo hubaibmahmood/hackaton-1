@@ -8,7 +8,8 @@
     "build": "tsc",
     "start": "node dist/index.js",
     "test": "jest",
-    "lint": "eslint src/ --ext .ts --fix"
+    "lint": "eslint src/ --ext .ts --fix",
+    "postinstall": "prisma generate"
   },
   "keywords": [],
   "author": "",
