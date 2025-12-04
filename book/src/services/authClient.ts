@@ -14,6 +14,7 @@ const getEnvVar = (key: string, defaultValue: string): string => {
   }
 };
 
+// const AUTH_SERVER_URL = getEnvVar('DOCUSAURUS_AUTH_SERVER_URL', 'http://localhost:3001');
 const AUTH_SERVER_URL = getEnvVar(
   'DOCUSAURUS_AUTH_SERVER_URL',
   'https://hackaton-1-three.vercel.app/',

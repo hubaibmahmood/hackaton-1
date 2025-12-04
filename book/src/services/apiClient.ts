@@ -3,7 +3,11 @@
  * Handles profile and personalization requests to the FastAPI backend.
  * Automatically includes JWT tokens from auth state.
  */
-import axios, { AxiosInstance, AxiosError, InternalAxiosRequestConfig } from 'axios';
+import axios, {
+  AxiosInstance,
+  AxiosError,
+  InternalAxiosRequestConfig,
+} from 'axios';
 import { getAccessToken, setAccessToken } from './tokenStore';
 
 // API Server base URL from environment or default
@@ -16,7 +20,11 @@ const getEnvVar = (key: string, defaultValue: string): string => {
   }
 };
 
-const API_SERVER_URL = getEnvVar('REACT_APP_API_SERVER_URL', 'http://localhost:8000');
+// const API_SERVER_URL = getEnvVar('REACT_APP_API_SERVER_URL', 'http://localhost:8000');
+const API_SERVER_URL = getEnvVar(
+  'REACT_APP_API_SERVER_URL',
+  'https://rag-chatbot-backend-21qb.onrender.com',
+);
 
 /**
  * Create Axios instance for API Server
@@ -49,7 +57,7 @@ apiClient.interceptors.request.use(
   },
   (error) => {
     return Promise.reject(error);
-  }
+  },
 );
 
 /**
@@ -94,7 +102,7 @@ apiClient.interceptors.response.use(
     }
 
     return Promise.reject(error);
-  }
+  },
 );
 
 export default apiClient;
